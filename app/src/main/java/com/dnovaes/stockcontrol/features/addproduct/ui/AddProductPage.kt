@@ -86,7 +86,10 @@ fun AddProductPage(
                 navigationIcon = {
                     IconButton(
                         colors = IconButtonDefaults.iconButtonColors(contentColor = AnnePrimary),
-                        onClick = onBackPressed
+                        onClick = {
+                            viewModel.resetState()
+                            onBackPressed()
+                        }
                     ) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
                     }
@@ -254,6 +257,7 @@ fun AddInitialPage(
                 stringResource(R.string.add_cancel_label_bt),
                 Modifier.padding(vertical = 4.dp)
             ) {
+                viewModel.resetState()
                 onBackPressed()
             }
         }

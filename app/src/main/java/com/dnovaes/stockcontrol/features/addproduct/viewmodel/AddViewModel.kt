@@ -34,7 +34,7 @@ class AddViewModel: ViewModel() {
         val model = _addState.data
         val newModel = model.copy(registerImage = image)
 
-        _addState = initialObservable.copy(data = newModel)
+        _addState = _addState.copy(data = newModel)
         addState.value = _addState
     }
 
