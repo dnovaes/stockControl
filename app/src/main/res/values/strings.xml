@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Stock Control</string>
+    <string name="register_product_screen_title">Cadastrar Produto</string>
+    <string name="register_product_category_field">Categoria</string>
+    <string name="send_photo">Enviar foto</string>
+    <string name="product_brand_field">Marca da peça</string>
+    <string name="product_provider_field">Fornecedor</string>
+    <string name="add_register_label_bt">Cadastrar</string>
+    <string name="add_cancel_label_bt">Cancelar</string>
+    <string name="add_loading_screen_label">Cadastrando produto</string>
+</resources>
