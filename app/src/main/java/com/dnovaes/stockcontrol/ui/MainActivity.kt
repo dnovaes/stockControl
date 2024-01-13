@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -57,6 +59,7 @@ import com.dnovaes.stockcontrol.MainViewModel
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.extensions.navigateSingleTopTo
 import com.dnovaes.stockcontrol.common.monitoring.log
+import com.dnovaes.stockcontrol.common.ui.FullScreenAlert
 import com.dnovaes.stockcontrol.common.ui.PrinterActivity
 import com.dnovaes.stockcontrol.features.addproduct.ui.AddProductPage
 import com.dnovaes.stockcontrol.ui.pages.LandingPage
@@ -122,9 +125,31 @@ class MainActivity : PrinterActivity() {
                 )
             }
             composable(route = "AddProductPage") {
-                AddProductPage(this@MainActivity, AddViewModel()) {
-                    navHostController.popBackStack()
-                }
+                AddProductPage(
+                    context = this@MainActivity,
+                    viewModel = AddViewModel(),
+                    onBackPressed =  {
+                        navHostController.popBackStack()
+                    },
+                    onFinishRegistration = {
+                        navHostController.navigateSingleTopTo("SuccessfulAddRegistrationPage")
+                    }
+                )
+            }
+            composable(route = "SuccessfulAddRegistrationPage") {
+                FullScreenAlert(
+                    headerIcon = Icons.Filled.ThumbUp,
+                    title = R.string.add_success_page_title,
+                    subtitle = null,
+                    positiveButtonLabel = R.string.add_success_page_positive_bt_label,
+                    negativeButtonLabel = R.string.add_success_page_negative_bt_label,
+                    onPositiveButtonClick = {
+
+                    },
+                    onNegativeButtonClick = {
+                        navHostController.popBackStack()
+                    }
+                )
             }
 /*
             composable(route = "ManageProductPage") {

@@ -33,6 +33,11 @@ data class AddUIObservable(
     fun isRegisteringProduct() =
         state == State.PROCESSING &&
         process == AddProcess.ADD_PRODUCT_REQUEST
+
+    fun isDoneProductRegistration() =
+        state == State.DONE &&
+        process == AddProcess.ADD_PRODUCT_REQUEST
+
 }
 
 enum class AddProcess {

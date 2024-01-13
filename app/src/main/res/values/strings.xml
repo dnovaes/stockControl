@@ -8,4 +8,8 @@
     <string name="add_register_label_bt">Cadastrar</string>
     <string name="add_cancel_label_bt">Cancelar</string>
     <string name="add_loading_screen_label">Cadastrando produto</string>
+    <string name="add_success_page_positive_bt_label">Atualizar estoque</string>
+    <string name="add_success_page_negative_bt_label">Sair</string>
+    <string name="add_success_page_title">Produto cadastrado com sucesso</string>
+    <string name="empty">" "</string>
 </resources>

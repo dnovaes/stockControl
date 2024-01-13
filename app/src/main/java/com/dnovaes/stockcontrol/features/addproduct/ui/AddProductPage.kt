@@ -73,6 +73,7 @@ fun AddProductPage(
     context: Context,
     viewModel: AddViewModel,
     onBackPressed: () -> Unit,
+    onFinishRegistration: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -99,9 +100,15 @@ fun AddProductPage(
     ) { paddingValues ->
         val currentState = viewModel.addState.value
 
-        if (currentState.isRegisteringProduct()) {
-            LoadingOverlay(stringResource(R.string.add_loading_screen_label))
+        when {
+            currentState.isRegisteringProduct() -> {
+                LoadingOverlay(stringResource(R.string.add_loading_screen_label))
+            }
+            currentState.isDoneProductRegistration() -> {
+                onFinishRegistration()
+            }
         }
+
         AddInitialPage(context, paddingValues, viewModel, onBackPressed = onBackPressed)
     }
 }
