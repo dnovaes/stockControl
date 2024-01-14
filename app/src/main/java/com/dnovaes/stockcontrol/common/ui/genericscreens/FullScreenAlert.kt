@@ -1,4 +1,4 @@
-package com.dnovaes.stockcontrol.common.ui
+package com.dnovaes.stockcontrol.common.ui.genericscreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,15 +51,20 @@ fun FullScreenAlert(
             text = stringResource(id = title),
             color = AnnePrimary,
             fontSize = 28.sp,
+            lineHeight = 36.sp,
             maxLines = 2,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(
+                vertical = 10.dp,
+                horizontal = 60.dp
+            ),
         )
         Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = stringResource(id = R.string.empty),
             color = AnnePrimary,
             fontSize = 16.sp,
+            lineHeight = 26.sp,
             maxLines = 2,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(20.dp),

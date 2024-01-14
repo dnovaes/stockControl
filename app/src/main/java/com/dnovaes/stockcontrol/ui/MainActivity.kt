@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -52,19 +50,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dnovaes.stockcontrol.MainViewModel
 import com.dnovaes.stockcontrol.R
-import com.dnovaes.stockcontrol.common.extensions.navigateSingleTopTo
+import com.dnovaes.stockcontrol.common.StockNavHost
 import com.dnovaes.stockcontrol.common.monitoring.log
-import com.dnovaes.stockcontrol.common.ui.FullScreenAlert
 import com.dnovaes.stockcontrol.common.ui.PrinterActivity
-import com.dnovaes.stockcontrol.features.addproduct.ui.AddProductPage
-import com.dnovaes.stockcontrol.ui.pages.LandingPage
 import com.dnovaes.stockcontrol.ui.theme.StockControlTheme
-import com.dnovaes.stockcontrol.features.addproduct.viewmodel.AddViewModel
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -104,58 +96,12 @@ class MainActivity : PrinterActivity() {
             StockControlTheme {
                 Surface {
                     val navController: NavHostController = rememberNavController()
-                    StockNavHost(navController)
+                    StockNavHost(
+                        context = this@MainActivity,
+                        navHostController = navController
+                    )
                 }
             }
-        }
-    }
-
-    @Composable
-    fun StockNavHost(navHostController: NavHostController) {
-        NavHost(
-            navController = navHostController,
-            startDestination = "LandingPage",
-        ) {
-            composable(route = "LandingPage") {
-                LandingPage(
-                    onClickAdd = {
-                        navHostController.navigateSingleTopTo("AddProductPage")
-                    },
-                    onClickManage = { }
-                )
-            }
-            composable(route = "AddProductPage") {
-                AddProductPage(
-                    context = this@MainActivity,
-                    viewModel = AddViewModel(),
-                    onBackPressed =  {
-                        navHostController.popBackStack()
-                    },
-                    onFinishRegistration = {
-                        navHostController.navigateSingleTopTo("SuccessfulAddRegistrationPage")
-                    }
-                )
-            }
-            composable(route = "SuccessfulAddRegistrationPage") {
-                FullScreenAlert(
-                    headerIcon = Icons.Filled.ThumbUp,
-                    title = R.string.add_success_page_title,
-                    subtitle = null,
-                    positiveButtonLabel = R.string.add_success_page_positive_bt_label,
-                    negativeButtonLabel = R.string.add_success_page_negative_bt_label,
-                    onPositiveButtonClick = {
-
-                    },
-                    onNegativeButtonClick = {
-                        navHostController.popBackStack()
-                    }
-                )
-            }
-/*
-            composable(route = "ManageProductPage") {
-                LandingPage()
-            }
-*/
         }
     }
 

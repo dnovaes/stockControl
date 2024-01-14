@@ -1,15 +1,26 @@
 <resources>
     <string name="app_name">Stock Control</string>
-    <string name="register_product_screen_title">Cadastrar Produto</string>
-    <string name="register_product_category_field">Categoria</string>
     <string name="send_photo">Enviar foto</string>
     <string name="product_brand_field">Marca da peça</string>
     <string name="product_provider_field">Fornecedor</string>
+
+    <string name="generic_success_page_negative_bt_label">Sair</string>
+
+    <string name="add_product_screen_title">Cadastrar Produto</string>
+    <string name="add_product_category_field">Categoria</string>
     <string name="add_register_label_bt">Cadastrar</string>
     <string name="add_cancel_label_bt">Cancelar</string>
-    <string name="add_loading_screen_label">Cadastrando produto</string>
+    <string name="add_loading_screen_label">Cadastrando</string>
     <string name="add_success_page_positive_bt_label">Atualizar estoque</string>
-    <string name="add_success_page_negative_bt_label">Sair</string>
     <string name="add_success_page_title">Produto cadastrado com sucesso</string>
+
     <string name="empty">" "</string>
+
+    <string name="update_product_screen_title">Atualizar Produto</string>
+    <string name="update_product_positive_label_bt">Salvar alterações</string>
+    <string name="update_loading_screen_label">Atualizando estoque</string>
+    <string name="update_success_page_title">Estoque atualizado com sucesso!</string>
+    <string name="update_success_page_positive_bt_label">Gerar etiqueta</string>
+    <string name="preview_print_label_title">Pré-visualização da etiqueta</string>
+    <string name="print_label_bt_title">Imprimir etiqueta</string>
 </resources>

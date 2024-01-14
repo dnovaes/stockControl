@@ -1,17 +1,7 @@
-package com.dnovaes.stockcontrol.features.addproduct.ui
+package com.dnovaes.stockcontrol.features.updateproduct.ui
 
-import android.app.Activity
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,7 +45,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.R
-import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
 import com.dnovaes.stockcontrol.common.ui.components.StockNegativeButton
@@ -65,13 +54,13 @@ import com.dnovaes.stockcontrol.ui.theme.AnneBackground
 import com.dnovaes.stockcontrol.ui.theme.AnnePrimary
 import com.dnovaes.stockcontrol.ui.theme.defaultPadding
 import com.dnovaes.stockcontrol.ui.theme.photoButtonSize
-import com.dnovaes.stockcontrol.features.addproduct.viewmodel.AddViewModel
+import com.dnovaes.stockcontrol.features.updateproduct.viewmodel.UpdateViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddProductPage(
+fun UpdateProductPage(
     context: Context,
-    viewModel: AddViewModel,
+    viewModel: UpdateViewModel,
     onBackPressed: () -> Unit,
     onFinishRegistration: () -> Unit
 ) {
@@ -80,7 +69,7 @@ fun AddProductPage(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(id = R.string.add_product_screen_title),
+                        text = stringResource(id = R.string.update_product_screen_title),
                         color = AnnePrimary
                     )
                 },
@@ -98,64 +87,29 @@ fun AddProductPage(
             )
         }
     ) { paddingValues ->
-        val currentState = viewModel.addState.value
+        val currentState = viewModel.updateState.value
 
         when {
-            currentState.isRegisteringProduct() -> {
-                LoadingOverlay(stringResource(R.string.add_loading_screen_label))
+            currentState.isUpdatingProduct() -> {
+                LoadingOverlay(stringResource(R.string.update_loading_screen_label))
             }
-            currentState.isDoneProductRegistration() -> {
+            currentState.isDoneUpdateProduct() -> {
                 onFinishRegistration()
             }
         }
 
-        AddInitialPage(context, paddingValues, viewModel, onBackPressed = onBackPressed)
+        UpdateFieldsPage(paddingValues, viewModel, onBackPressed = onBackPressed)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddInitialPage(
-    context: Context,
+fun UpdateFieldsPage(
     paddingValues: PaddingValues,
-    viewModel: AddViewModel,
+    viewModel: UpdateViewModel,
     onBackPressed: () -> Unit
 ) {
-    val currentState = viewModel.addState.value
-
-    val fileName = "add_product_temp_image_${System.currentTimeMillis()}.jpg"
-    val contentValues = ContentValues().apply {
-        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-    }
-
-    // Insert an empty image file into the MediaStore
-    val imageUri =
-        context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-    val cameraResultLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val imageBitmap = loadImageBitmap(imageUri, context.contentResolver)
-                viewModel.finishImageCapturing(imageBitmap)
-            } else {
-                log("User canceled capture of image from camera")
-            }
-        }
-
-    val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-        putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-    }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            cameraResultLauncher.launch(takePictureIntent)
-        } else {
-            log("Camera permission not granted.")
-        }
-    }
+    val model = viewModel.updateState.value.data
 
     Column(
         modifier = Modifier
@@ -174,11 +128,8 @@ fun AddInitialPage(
             ),
             border = BorderStroke(1.dp, SolidColor(AnnePrimary)),
             shape = RoundedCornerShape(10.dp),
-            onClick = {
-                permissionLauncher.launch(android.Manifest.permission.CAMERA)
-            }
         ) {
-            currentState.data.registerImage ?.let {
+            model.registerImage ?.let {
                 FilledPhotoButton(it)
             } ?: run {
                 UnfilledPhotoButton()
@@ -254,10 +205,10 @@ fun AddInitialPage(
         ) {
 
             StockButton(
-                stringResource(R.string.add_register_label_bt),
+                stringResource(R.string.update_product_positive_label_bt),
                 Modifier.padding(vertical = 4.dp)
             ) {
-                viewModel.registerProduct()
+                viewModel.updateProduct()
             }
 
             StockNegativeButton(
@@ -336,19 +287,4 @@ fun StockDropdownField(
             disabledTrailingIconColor = AnnePrimary
         )
     )
-}
-
-private fun loadImageBitmap(
-    imageUri: Uri?,
-    contentResolver: ContentResolver
-): Bitmap? {
-    return try {
-        imageUri?.let { uri ->
-            val inputStream = contentResolver.openInputStream(uri)
-            BitmapFactory.decodeStream(inputStream)
-        }
-    } catch (e: Exception) {
-        log("Failed to load image bitmap")
-        null
-    }
 }

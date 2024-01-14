@@ -43,7 +43,7 @@ class AddViewModel: ViewModel() {
             _addState = _addState.asAddingProduct()
             addState.value = _addState
 
-            delay(4000)
+            delay(2000)
 
             _addState = _addState.asDoneAddProduct()
             addState.value = _addState
