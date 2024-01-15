@@ -11,13 +11,16 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.utilities.BluetoothFacade
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 abstract class PrinterActivity: BaseActivity() {
 
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             // Bluetooth is enabled, proceed with connecting to a paired device
-            printPairedDevices()
+            scanPairedDevices()
         } else {
             // User didn't enable Bluetooth, handle accordingly
         }
@@ -27,7 +30,7 @@ abstract class PrinterActivity: BaseActivity() {
         BluetoothFacade(this.applicationContext)
     }
 
-    protected fun printPairedDevices() {
+    protected fun scanPairedDevices() {
         bluetoothFacade.scanPairedDevices(
             onBluetoothNotEnabled = {
                 requestBluetoothFeature()
@@ -38,8 +41,14 @@ abstract class PrinterActivity: BaseActivity() {
         )
     }
 
-    protected fun printWithNiimbotClient(bitmap: Bitmap) {
-        bluetoothFacade.printWithClient(bitmap)
+    fun connectToPrinter() {
+        bluetoothFacade.connectToD110Printer()
+    }
+
+    fun printWithNiimbotClient(bitmap: Bitmap, onSuccessfulPrint: () -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            bluetoothFacade.printWithClient(bitmap, onSuccessfulPrint)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -75,9 +84,5 @@ abstract class PrinterActivity: BaseActivity() {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    fun connectToPrinter() {
-        bluetoothFacade.connectToD110Printer(this.applicationContext)
     }
 }

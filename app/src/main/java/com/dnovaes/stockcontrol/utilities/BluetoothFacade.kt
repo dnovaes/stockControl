@@ -25,6 +25,8 @@ class BluetoothFacade(
     private val context: Context
 ) {
 
+    var isConnected = false
+
     companion object {
         const val BLUETOOTH_PERMISSION_CODE = 123
     }
@@ -33,8 +35,6 @@ class BluetoothFacade(
         (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
 
     private var currentPairedDevice: BluetoothDevice? = null
-
-    private val scope = CoroutineScope(Dispatchers.IO)
 
     fun scanPairedDevices(
         onFailPermission: () -> Unit,
@@ -79,7 +79,18 @@ class BluetoothFacade(
         log("=====================")
     }
 
-    fun connectToD110Printer(context: Context) {
+    fun connectToD110Printer() {
+        val address = currentPairedDevice?.address ?: return
+        val adapter = adapter ?: return
+
+        niimbotPrinterClient ?: run {
+            niimbotPrinterClient = NiimbotPrinterClient(
+                address = address,
+                bluetoothAdapter = adapter
+            )
+            niimbotPrinterClient
+        }
+/*
         val pairedDevice = currentPairedDevice ?: run {
             log("Printer D110 is not paired yet.")
             return
@@ -100,6 +111,7 @@ class BluetoothFacade(
             try {
                 if (!socket.isConnected) {
                     socket.connect()
+                    isConnected = true
                     log("Printer Connection successful.")
                 }
 
@@ -122,64 +134,31 @@ class BluetoothFacade(
 
                 outputStream.flush() // Flush the stream to ensure data is sent
             } catch (e: IOException) {
+                isConnected = false
                 // Connection failed
                 // Handle accordingly
                 log("Printer Connection failed with exception: $e")
             }
         }
+*/
     }
 
     private var niimbotPrinterClient: NiimbotPrinterClient? = null
 
-    fun printWithClient(image: Bitmap) {
-        val address = currentPairedDevice?.address ?: return
-        val adapter = adapter ?: return
-
-        scope.launch(Dispatchers.IO) {
-            val client = niimbotPrinterClient ?: run {
-                niimbotPrinterClient = NiimbotPrinterClient(
-                    address = address,
-                    bluetoothAdapter = adapter
-                )
-                niimbotPrinterClient
-            }
-
-            //log(client?.getPrintStatus().toString())
-            val bitmap: Bitmap? = image //BitmapFactory.decodeResource(context.resources, R.mipmap.hello)
-            val drawable = context.getDrawable(R.mipmap.hello)!!
-            log("drawable: width: ${drawable.minimumWidth}, height: ${drawable.minimumHeight}")
-            //val bitmap: Bitmap? = createBitmapWithText()
-            bitmap?.let {
-                val width = 192
-                val height = 96
-                log("Printing with width: $width, height: $height")
-                client?.printLabel(it, width, height, labelDensity = 1)
-            }
-        }
-    }
-
-    fun createBitmapWithText(): Bitmap {
-        val bitmapWidth = 28
-        val bitmapHeight = 14
-        val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        // Fill the background with white color
-        canvas.drawColor(Color.WHITE)
-
-        val paint = Paint().apply {
-            color = Color.BLACK
-            textSize = 40f
-            textAlign = Paint.Align.CENTER
-        }
-
-        val text = "Hello, world!"
-        val textX = (bitmapWidth / 2).toFloat()
-        val textY = (bitmapHeight / 2).toFloat()
-
-        canvas.drawText(text, textX, textY, paint)
-
-        return bitmap
+    suspend fun printWithClient(image: Bitmap, onSuccessfulPrint: () -> Unit) {
+        //log(client?.getPrintStatus().toString())
+        //BitmapFactory.decodeResource(context.resources, R.mipmap.hello)
+        //val bitmap: Bitmap? = createBitmapWithText()
+        val width = 192
+        val height = 96
+        log("Printing with width: $width, height: $height")
+        niimbotPrinterClient?.printLabel(
+            image,
+            width,
+            height,
+            labelDensity = 1,
+            onSuccessfulPrint = onSuccessfulPrint
+        )
     }
 
 }

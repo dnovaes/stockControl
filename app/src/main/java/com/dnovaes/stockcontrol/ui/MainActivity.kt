@@ -8,13 +8,9 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,13 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -56,16 +49,12 @@ import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.StockNavHost
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.PrinterActivity
+import com.dnovaes.stockcontrol.common.utils.QRCodeManager.generateQRCode
 import com.dnovaes.stockcontrol.ui.theme.StockControlTheme
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.EncodeHintType
-import com.google.zxing.qrcode.QRCodeWriter
-import com.smarttoolfactory.screenshot.ScreenshotBox
-import com.smarttoolfactory.screenshot.rememberScreenshotState
 import java.util.concurrent.Executors
 
 enum class State {
@@ -92,6 +81,10 @@ class MainActivity : PrinterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        scanPairedDevices()
+        connectToPrinter()
+
         setContent {
             StockControlTheme {
                 Surface {
@@ -191,7 +184,7 @@ class MainActivity : PrinterActivity() {
                     .width(240.dp)
                     .height(44.dp),
                 onClick = {
-                    printPairedDevices()
+                    scanPairedDevices()
                 }
             ) {
                 Text(
@@ -242,99 +235,6 @@ class MainActivity : PrinterActivity() {
                 )
             }
 
-            bitmap?.let {
-                val screenshotState = rememberScreenshotState()
-                screenshotState.bitmapState.value?.let {
-                    screenshotState.bitmapState.value = null
-                    printWithNiimbotClient(it)
-                }
-                ScreenshotBox(screenshotState = screenshotState) {
-                    PreviewPrintLabel(it) {
-                        screenshotState.capture()
-                    }
-                }
-            }
-        }
-    }
-
-    private fun generateQRCode(
-        data: String,
-        width: Int,
-        height: Int
-    ): Bitmap {
-        val qrCodeWriter = QRCodeWriter()
-        val bitMatrix = qrCodeWriter.encode(
-            data,
-            BarcodeFormat.QR_CODE,
-            width,
-            height,
-            mapOf(EncodeHintType.MARGIN to 0)
-        )
-
-        val width = bitMatrix.width
-        val height = bitMatrix.height
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-
-        for (x in 0 until width) {
-            for (y in 0 until height) {
-                bitmap.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
-            }
-        }
-        return bitmap
-    }
-
-    @Composable
-    fun BitmapImage(bitmap: Bitmap, size: Dp) {
-        Image(
-            bitmap = bitmap.asImageBitmap(),
-            contentDescription = "QR code image",
-            modifier = Modifier.size(size)
-        )
-    }
-
-    @Composable
-    fun PreviewPrintLabel(image: Bitmap, onClick: () -> Unit) {
-        Box(
-            modifier = Modifier
-                /*
-                .border(
-                    width = 1.dp,
-                    color = Color(android.graphics.Color.BLACK),
-                    shape = RectangleShape
-                )
-*/
-                .width(160.dp)
-                .height(80.dp)
-                .clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = null, // Remove the visual indication
-                ) {
-                    onClick.invoke()
-                },
-        ) {
-            Row {
-                BitmapImage(bitmap = image, size = 80.dp)
-                Column {
-                    Text(
-                        text = "00000111",
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Left,
-                        modifier = Modifier
-                            .padding(0.dp, 4.dp)
-                            .size(80.dp, 30.dp)
-                            .wrapContentHeight(Alignment.CenterVertically),
-                    )
-                    Text(
-                        text = "R$1999,10",
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Left,
-                        modifier = Modifier
-                            .padding(0.dp, 2.dp)
-                            .size(80.dp, 30.dp)
-                            .wrapContentHeight(Alignment.CenterVertically),
-                    )
-                }
-            }
         }
     }
 

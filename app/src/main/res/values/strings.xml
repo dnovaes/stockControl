@@ -22,5 +22,6 @@
     <string name="update_success_page_title">Estoque atualizado com sucesso!</string>
     <string name="update_success_page_positive_bt_label">Gerar etiqueta</string>
     <string name="preview_print_label_title">Pré-visualização da etiqueta</string>
-    <string name="print_label_bt_title">Imprimir etiqueta</string>
+
+    <string name="print_bt_label">Imprimir etiqueta</string>
 </resources>

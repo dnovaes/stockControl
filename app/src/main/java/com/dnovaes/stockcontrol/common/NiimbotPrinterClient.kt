@@ -494,7 +494,15 @@ class NiimbotPrinterClient(
         return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
-    suspend fun printLabel(image: Bitmap, width: Int, height: Int, labelQty: Int = 1, labelType: Int = 1, labelDensity: Int = 2) = withContext(Dispatchers.IO) {
+    suspend fun printLabel(
+        image: Bitmap,
+        width: Int,
+        height: Int,
+        labelQty: Int = 1,
+        labelType: Int = 1,
+        labelDensity: Int = 2,
+        onSuccessfulPrint: () -> Unit
+    ) = withContext(Dispatchers.IO) {
 
         val rotatedPreviewImage = if (image.width != width || image.height != height){
             rotateBitmap(resizeBitmap(image, width, height), 90f)
@@ -521,6 +529,7 @@ class NiimbotPrinterClient(
         while (getPrintStatus()["page"] != labelQty) {
             Thread.sleep(100)
         }
+        onSuccessfulPrint?.invoke()
 
         endPrint()
 
