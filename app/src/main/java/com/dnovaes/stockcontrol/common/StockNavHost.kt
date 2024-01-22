@@ -10,18 +10,20 @@ import androidx.navigation.compose.composable
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.extensions.navigateSingleTopTo
 import com.dnovaes.stockcontrol.common.ui.genericscreens.FullScreenAlert
-import com.dnovaes.stockcontrol.common.ui.genericscreens.PrintPreviewPage
+import com.dnovaes.stockcontrol.common.ui.genericscreens.printer.PrintPreviewPage
+import com.dnovaes.stockcontrol.common.ui.genericscreens.printer.PrintPreviewVIewModel
 import com.dnovaes.stockcontrol.features.addproduct.ui.AddProductPage
 import com.dnovaes.stockcontrol.features.addproduct.viewmodel.AddViewModel
 import com.dnovaes.stockcontrol.features.updateproduct.ui.UpdateProductPage
 import com.dnovaes.stockcontrol.features.updateproduct.viewmodel.UpdateViewModel
-import com.dnovaes.stockcontrol.ui.MainActivity
 import com.dnovaes.stockcontrol.ui.pages.LandingPage
+import com.dnovaes.stockcontrol.utilities.StockBluetoothManager
 
 @Composable
 fun StockNavHost(
     context: Context,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    bluetoothManager: StockBluetoothManager
 ) {
     NavHost(
         navController = navHostController,
@@ -99,12 +101,8 @@ fun StockNavHost(
 
         composable(route = "PrintPreviewPage") {
             PrintPreviewPage(
+                viewModel = PrintPreviewVIewModel(bluetoothManager),
                 sku = "00000111",
-                onPositiveButtonClick = { imageBitmap ->
-                    (context as MainActivity).printWithNiimbotClient(imageBitmap) {
-
-                    }
-                },
                 onNegativeButtonClick = {
                     navHostController.popBackStack()
                 }

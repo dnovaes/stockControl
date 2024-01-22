@@ -8,21 +8,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,21 +29,29 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.R
+import com.dnovaes.stockcontrol.common.extensions.formatCurrency
+import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
 import com.dnovaes.stockcontrol.common.ui.components.StockNegativeButton
@@ -55,6 +62,7 @@ import com.dnovaes.stockcontrol.ui.theme.AnnePrimary
 import com.dnovaes.stockcontrol.ui.theme.defaultPadding
 import com.dnovaes.stockcontrol.ui.theme.photoButtonSize
 import com.dnovaes.stockcontrol.features.updateproduct.viewmodel.UpdateViewModel
+import java.text.DecimalFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,48 +148,23 @@ fun UpdateFieldsPage(
         StockOutlineTextField(
             labelText = "Nome",
             currentValue = nameState.value,
+            enabled = false,
             onValueChange = {
                 nameState.value = it
             },
         )
 
-        var expandedDropdown by remember { mutableStateOf(false) }
-        var selectedCategory by remember { mutableStateOf("") }
-
         StockDropdownField(
-            selectedCategory = selectedCategory,
-            onClick = {
-                expandedDropdown = !expandedDropdown
-            }
+            selectedCategory = "CategoriaTemp",
+            colors = TextFieldDefaults.outlinedTextFieldColors(),
+            onClick =  null
         )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 0.dp)
-        ) {
-            DropdownMenu(
-                expanded = expandedDropdown,
-                onDismissRequest = { },
-                content = {
-                    for (i in 0..10) {
-                        val menuItemText = "Categoria$i"
-                        DropdownMenuItem(
-                            text = { Text(menuItemText) },
-                            onClick = {
-                                expandedDropdown = false
-                                selectedCategory = menuItemText
-                            }
-                        )
-                    }
-                }
-            )
-        }
 
         val brandNameState = remember { mutableStateOf("") }
         StockOutlineTextField(
             labelText = stringResource(R.string.product_brand_field),
             currentValue = brandNameState.value,
+            enabled = false,
             onValueChange = {
                 brandNameState.value = it
             },
@@ -191,10 +174,111 @@ fun UpdateFieldsPage(
         StockOutlineTextField(
             labelText = stringResource(R.string.product_provider_field),
             currentValue = supplierNameState.value,
+            enabled = false,
             onValueChange = {
                 supplierNameState.value = it
             },
         )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            val priceSellNameState = remember { mutableStateOf(TextFieldValue("0,00")) }
+            StockOutlineTextField(
+                modifier = Modifier
+                    .padding(
+                        start = defaultPadding.dp,
+                        end = 4.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                    .fillMaxWidth(0.5f),
+                labelText = stringResource(R.string.update_product_sell_price),
+                currentValue = priceSellNameState.value,
+                leadingIcon = {
+                    IconButton(
+                        onClick = {
+                            //nothing }
+                        }
+                    ) {
+                        Text(text = "R$")
+                    }
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Number,
+                    autoCorrect = false
+                ),
+                onValueChange = { newPrice ->
+                    val prevPrice = priceSellNameState.value
+                    if (prevPrice.text.length > newPrice.text.length) {
+                        //user tried to delete a character
+                        val newValue = "0,00"
+                        priceSellNameState.value = TextFieldValue(
+                            text = newValue,
+                            selection = TextRange(newValue.length)
+                        )
+                    } else {
+                        //user added a character
+                        priceSellNameState.value = newPrice.copy(
+                            text = newPrice.text.formatCurrency(),
+                            selection = TextRange(newPrice.text.length)
+                        )
+                    }
+                },
+            )
+
+            val stockState = remember { mutableIntStateOf(0) }
+            OutlinedTextField(
+                modifier = Modifier
+                    .padding(
+                        start = 4.dp,
+                        end = defaultPadding.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                    .fillMaxWidth(1f),
+                label = {
+                    Text(
+                        text = "Estoque",
+                        textAlign = TextAlign.Center,
+                    )
+                },
+                value = stockState.intValue.toString(),
+                textStyle = TextStyle(textAlign = TextAlign.Center),
+                leadingIcon = {
+                    IconButton(
+                        onClick = {
+                            log("plus icon clicked")
+                            stockState.intValue++
+                        }
+                    ) {
+                        Text(text = "+")
+                    }
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            log("minus icon clicked")
+                            if (stockState.intValue > 0) {
+                                stockState.intValue--
+                            }
+                        }
+                    ) {
+                        Text(text = "-")
+                    }
+                },
+                readOnly = true,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Number
+                ),
+                onValueChange = {
+                    stockState.intValue = it.toInt()
+                },
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -260,7 +344,8 @@ fun FilledPhotoButton(image: Bitmap) {
 @Composable
 fun StockDropdownField(
     selectedCategory: String,
-    onClick: (() -> Unit),
+    colors: TextFieldColors,
+    onClick: (() -> Unit)? = null,
 ) {
     OutlinedTextField(
         value = selectedCategory,
@@ -270,7 +355,7 @@ fun StockDropdownField(
             .fillMaxWidth()
             .focusable(false)
             .padding(horizontal = defaultPadding.dp, vertical = 4.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = { onClick?.invoke() }),
         readOnly = true,
         enabled = false,
         trailingIcon = {
@@ -279,12 +364,6 @@ fun StockDropdownField(
                 contentDescription = "",
             )
         },
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            disabledBorderColor = AnnePrimary,
-            disabledLabelColor = AnnePrimary,
-            disabledPlaceholderColor = AnnePrimary,
-            disabledTextColor = AnnePrimary,
-            disabledTrailingIconColor = AnnePrimary
-        )
+        colors = colors
     )
 }

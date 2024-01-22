@@ -27,7 +27,7 @@ data class AddUIObservable(
 
 
     fun isInitialLoadScreen() =
-        state == State.INITIAL &&
+        state == State.START &&
         process == AddProcess.LOAD_INITIAL_DATA
 
     fun isRegisteringProduct() =

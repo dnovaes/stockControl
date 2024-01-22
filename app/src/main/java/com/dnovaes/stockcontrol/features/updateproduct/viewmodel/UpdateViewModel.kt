@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class UpdateViewModel: ViewModel() {
 
     private val initialObservable = UpdateUIObservable(
-        state = State.INITIAL,
+        state = State.START,
         process = UpdateProcess.LOAD_INITIAL_DATA,
         data = UpdateUIModel(),
     )

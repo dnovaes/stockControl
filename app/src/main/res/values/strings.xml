@@ -18,10 +18,15 @@
 
     <string name="update_product_screen_title">Atualizar Produto</string>
     <string name="update_product_positive_label_bt">Salvar alterações</string>
+    <string name="update_product_sell_price">Preço de venda</string>
     <string name="update_loading_screen_label">Atualizando estoque</string>
     <string name="update_success_page_title">Estoque atualizado com sucesso!</string>
     <string name="update_success_page_positive_bt_label">Gerar etiqueta</string>
     <string name="preview_print_label_title">Pré-visualização da etiqueta</string>
 
     <string name="print_bt_label">Imprimir etiqueta</string>
+    <string name="print_loading_screen_label">Imprimindo</string>
+    <string name="printer_not_connected">Impressora não conectada</string>
+    <string name="printer_generic_error">Nao foi possivel imprimir</string>
+    <string name="printer_label_printed">Etiqueta impressa com sucesso</string>
 </resources>

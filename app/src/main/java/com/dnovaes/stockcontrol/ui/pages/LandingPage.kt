@@ -15,6 +15,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun LandingPage(

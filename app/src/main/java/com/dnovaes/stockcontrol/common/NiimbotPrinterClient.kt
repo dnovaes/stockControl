@@ -501,7 +501,7 @@ class NiimbotPrinterClient(
         labelQty: Int = 1,
         labelType: Int = 1,
         labelDensity: Int = 2,
-        onSuccessfulPrint: () -> Unit
+        onFinishPrinting: (() -> Unit)?,
     ) = withContext(Dispatchers.IO) {
 
         val rotatedPreviewImage = if (image.width != width || image.height != height){
@@ -529,7 +529,8 @@ class NiimbotPrinterClient(
         while (getPrintStatus()["page"] != labelQty) {
             Thread.sleep(100)
         }
-        onSuccessfulPrint?.invoke()
+
+        onFinishPrinting?.invoke()
 
         endPrint()
 

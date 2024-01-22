@@ -7,25 +7,16 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import androidx.core.app.ActivityCompat
-import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.NiimbotPrinterClient
 import com.dnovaes.stockcontrol.common.monitoring.log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.IOException
-import java.util.UUID
 
-class BluetoothFacade(
+class StockBluetoothManager(
     private val context: Context
 ) {
 
     var isConnected = false
+        private set
 
     companion object {
         const val BLUETOOTH_PERMISSION_CODE = 123
@@ -83,12 +74,17 @@ class BluetoothFacade(
         val address = currentPairedDevice?.address ?: return
         val adapter = adapter ?: return
 
-        niimbotPrinterClient ?: run {
-            niimbotPrinterClient = NiimbotPrinterClient(
-                address = address,
-                bluetoothAdapter = adapter
-            )
-            niimbotPrinterClient
+        try {
+            niimbotPrinterClient ?: run {
+                niimbotPrinterClient = NiimbotPrinterClient(
+                    address = address,
+                    bluetoothAdapter = adapter
+                )
+                niimbotPrinterClient
+            }
+        } catch (e: Exception) {
+            isConnected = false
+            log(e.stackTraceToString())
         }
 /*
         val pairedDevice = currentPairedDevice ?: run {
@@ -145,7 +141,30 @@ class BluetoothFacade(
 
     private var niimbotPrinterClient: NiimbotPrinterClient? = null
 
-    suspend fun printWithClient(image: Bitmap, onSuccessfulPrint: () -> Unit) {
+    suspend fun updatePrinterStatus() {
+        isConnected = try {
+            niimbotPrinterClient?.getPrintStatus()?.run {
+                true
+            } ?: run {
+                false
+            }
+        } catch (e: Exception) {
+            log(e.stackTraceToString())
+            false
+        }
+    }
+
+    suspend fun printWithClient(
+        image: Bitmap,
+        onErrorPrinting: ((String) -> Unit),
+        onFinishPrinting: (() -> Unit)
+    ) {
+        if (!isConnected) {
+            val errorMessage = "Printer cant print if its disconnected"
+            log(errorMessage)
+            onErrorPrinting(errorMessage)
+            return
+        }
         //log(client?.getPrintStatus().toString())
         //BitmapFactory.decodeResource(context.resources, R.mipmap.hello)
         //val bitmap: Bitmap? = createBitmapWithText()
@@ -157,7 +176,7 @@ class BluetoothFacade(
             width,
             height,
             labelDensity = 1,
-            onSuccessfulPrint = onSuccessfulPrint
+            onFinishPrinting = onFinishPrinting
         )
     }
 

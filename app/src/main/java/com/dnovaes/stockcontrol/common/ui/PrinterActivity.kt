@@ -4,14 +4,13 @@ import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import com.dnovaes.stockcontrol.common.monitoring.log
-import com.dnovaes.stockcontrol.utilities.BluetoothFacade
-import kotlinx.coroutines.CoroutineScope
+import com.dnovaes.stockcontrol.utilities.StockBluetoothManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -26,12 +25,12 @@ abstract class PrinterActivity: BaseActivity() {
         }
     }
 
-    private val bluetoothFacade: BluetoothFacade by lazy {
-        BluetoothFacade(this.applicationContext)
+    protected val bluetoothManager: StockBluetoothManager by lazy {
+        StockBluetoothManager(this.applicationContext)
     }
 
     protected fun scanPairedDevices() {
-        bluetoothFacade.scanPairedDevices(
+        bluetoothManager.scanPairedDevices(
             onBluetoothNotEnabled = {
                 requestBluetoothFeature()
             },
@@ -42,12 +41,9 @@ abstract class PrinterActivity: BaseActivity() {
     }
 
     fun connectToPrinter() {
-        bluetoothFacade.connectToD110Printer()
-    }
-
-    fun printWithNiimbotClient(bitmap: Bitmap, onSuccessfulPrint: () -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            bluetoothFacade.printWithClient(bitmap, onSuccessfulPrint)
+        lifecycleScope.launch(Dispatchers.IO) {
+            bluetoothManager.connectToD110Printer()
+            bluetoothManager.updatePrinterStatus()
         }
     }
 
@@ -60,13 +56,23 @@ abstract class PrinterActivity: BaseActivity() {
                 Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.BLUETOOTH_SCAN,
             ),
-            BluetoothFacade.BLUETOOTH_PERMISSION_CODE
+            StockBluetoothManager.BLUETOOTH_PERMISSION_CODE
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun requestBluetoothFeature() {
-        val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        resultLauncher.launch(enableBluetoothIntent)
+
+        when {
+            checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED -> {
+                //sendBroadcast(Intent(ACTION_PERMISSIONS_GRANTED))
+                val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                resultLauncher.launch(enableBluetoothIntent)
+            }
+            else -> {
+                requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1)
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -74,7 +80,7 @@ abstract class PrinterActivity: BaseActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == BluetoothFacade.BLUETOOTH_PERMISSION_CODE) {
+        if (requestCode == StockBluetoothManager.BLUETOOTH_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, perform Bluetooth-related operations
                 log("Bluetooth permission allowed")

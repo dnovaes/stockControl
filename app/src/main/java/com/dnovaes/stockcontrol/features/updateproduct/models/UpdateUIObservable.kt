@@ -25,7 +25,7 @@ data class UpdateUIObservable(
     }
 
     fun isInitialLoadScreen() =
-        state == State.INITIAL && process == UpdateProcess.LOAD_INITIAL_DATA
+        state == State.START && process == UpdateProcess.LOAD_INITIAL_DATA
 
     fun isUpdatingProduct() =
         state == State.PROCESSING &&

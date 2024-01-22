@@ -7,7 +7,7 @@ import com.dnovaes.stockcontrol.ui.State
 
 class MainViewModel: ViewModel() {
 
-    private var _gameState = State.INITIAL
+    private var _gameState = State.START
     val gameState: MutableState<State> = mutableStateOf(_gameState)
 
     fun startCapture() {
@@ -21,7 +21,7 @@ class MainViewModel: ViewModel() {
     }
 
     fun resetState() {
-        _gameState = State.INITIAL
+        _gameState = State.START
         gameState.value = _gameState
     }
 }

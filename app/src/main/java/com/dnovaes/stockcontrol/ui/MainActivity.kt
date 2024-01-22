@@ -58,7 +58,7 @@ import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
 
 enum class State {
-    INITIAL,
+    START,
     PROCESSING,
     DONE,
     CAPTURING,
@@ -91,7 +91,8 @@ class MainActivity : PrinterActivity() {
                     val navController: NavHostController = rememberNavController()
                     StockNavHost(
                         context = this@MainActivity,
-                        navHostController = navController
+                        navHostController = navController,
+                        bluetoothManager = bluetoothManager
                     )
                 }
             }
@@ -104,7 +105,7 @@ class MainActivity : PrinterActivity() {
         //val textRecognizer = remember { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
         // Show loading indicator when isLoading is true
         when (state) {
-            State.INITIAL, State.IDLE -> InitialScreen()
+            State.START, State.IDLE -> InitialScreen()
             State.DONE -> {
                 Dialog(onDismissRequest = { }) {
                     Card(modifier = Modifier.fillMaxWidth(0.8f)) {

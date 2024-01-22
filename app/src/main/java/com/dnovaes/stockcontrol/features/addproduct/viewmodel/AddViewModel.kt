@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class AddViewModel: ViewModel() {
 
     private val initialObservable = AddUIObservable(
-        state = State.INITIAL,
+        state = State.START,
         process = AddProcess.LOAD_INITIAL_DATA,
         data = AddUIModel(),
     )

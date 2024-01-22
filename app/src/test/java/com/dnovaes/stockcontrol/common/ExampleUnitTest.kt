@@ -1,4 +1,4 @@
-package com.dnovaes.stockcontrol
+package com.dnovaes.stockcontrol.common
 
 import org.junit.Test
 
