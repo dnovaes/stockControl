@@ -7,6 +7,6 @@ enum class ErrorCode: ErrorCodeInterface {
         override val resId = R.string.error_code_422
     },
     UNKNOWN_EXCEPTION {
-        override val resId = R.string.error_code_422
+        override val resId = R.string.unknown_exception
     }
 }

@@ -31,7 +31,7 @@
     <string name="printer_label_printed">Etiqueta impressa com sucesso</string>
 
     <!-- Error strings -->
-    <string name="error_code_422">Sorry, server couldn\'t process your request</string>
-    <string name="unknown_exception">Sorry, unknown system error please contact the admin</string>
+    <string name="error_code_422">Desculpe, servidor não conseguiu processar seu pedido</string>
+    <string name="unknown_exception">Desculpe, Erro de sistema desconhecido, contate o administrador</string>
 
 </resources>
