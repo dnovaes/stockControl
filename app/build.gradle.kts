@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.apollographql.apollo3") version "3.8.2"
 }
 
 android {
@@ -19,10 +20,14 @@ android {
             useSupportLibrary = true
         }
     }
-
+    val baseApiUrl = System.getenv("STOCKCONTROL_BASE_URL") ?: "http://10.0.2.2"
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_API_URL", "\"$baseApiUrl\"")
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "BASE_API_URL", "\"$baseApiUrl\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -38,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -46,6 +52,12 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+apollo {
+    service("service") {
+        packageName.set("com.dnovaes.stockcontrol")
     }
 }
 
@@ -86,4 +98,7 @@ dependencies {
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
+
+    //apollo kotlin
+    implementation("com.apollographql.apollo3:apollo-runtime:3.8.2")
 }

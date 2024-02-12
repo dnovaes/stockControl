@@ -29,4 +29,9 @@
     <string name="printer_not_connected">Impressora não conectada</string>
     <string name="printer_generic_error">Nao foi possivel imprimir</string>
     <string name="printer_label_printed">Etiqueta impressa com sucesso</string>
+
+    <!-- Error strings -->
+    <string name="error_code_422">Sorry, server couldn\'t process your request</string>
+    <string name="unknown_exception">Sorry, unknown system error please contact the admin</string>
+
 </resources>

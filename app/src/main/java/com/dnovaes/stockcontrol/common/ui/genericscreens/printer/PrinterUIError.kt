@@ -6,7 +6,7 @@ import com.dnovaes.stockcontrol.common.models.UIErrorInterface
 
 data class PrinterUIError(
     override val errorCode: PrinterErrorCode,
-    val extra: Map<String, String> = emptyMap()
+    override val additionalParams: Map<String, String> = emptyMap()
 ): UIErrorInterface
 
 enum class PrinterErrorCode(override val resId: Int): ErrorCodeInterface {

@@ -1,0 +1,105 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Company {
+  id: ID!
+  name: String!
+  logo: String!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  company: Company!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  image: String!
+  category: Category!
+  brand: String!
+  supplier: String!
+  productSet: [Product]!
+  company: Company!
+}
+
+type StockProduct {
+  id: ID!
+  product: Product!
+  store: Store!
+  styleColor: String!
+  size: String!
+  sku: String!
+  price: String!
+  quantity: Int!
+}
+
+type Store {
+  id: ID!
+  name: String!
+  address: String!
+  company: Company!
+}
+
+input NewProduct {
+  name: String!
+  image: String!
+  brand: String!
+  supplier: String!
+  categoryId: String!
+  companyId: String!
+}
+
+type StyleAvailable {
+  nextAvailableStyle: String!
+  storeId: String!
+}
+
+input NewCompany {
+  name: String!
+  logo: String!
+}
+
+input NewCategory {
+  name: String!
+  companyId: String!
+}
+
+input NewStore {
+  name: String!
+  address: String!
+  companyId: String!
+}
+
+input NewStockProduct {
+  price: String!
+  quantity: Int!
+  size: String!
+  productId: String!
+  storeId: String!
+}
+
+input NewStyleAvailable{
+  storeId: String!
+}
+
+type Mutation {
+  createProduct(input: NewProduct!): Product!
+  createCompany(input: NewCompany!): Company!
+  createCategory(input: NewCategory!): Category!
+  createStore(input: NewStore!): Store!
+  createStockProduct(input: NewStockProduct!): StockProduct!
+  updateStyleAvailable(storeId: String!): StyleAvailable!
+}
+
+type Query {
+  getAllProducts: [Product!]!
+  getAllCompanies: [Company!]!
+  getAllCategories: [Category!]!
+  getAllStores: [Store!]!
+  getAllStockProduct: [StockProduct]!
+  getNextStyleAvailable(storeId: String!): String!
+}
+
