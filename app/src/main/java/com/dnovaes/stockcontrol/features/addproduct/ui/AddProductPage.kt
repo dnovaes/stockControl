@@ -39,6 +39,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -46,6 +49,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +70,8 @@ import com.dnovaes.stockcontrol.ui.theme.AnnePrimary
 import com.dnovaes.stockcontrol.ui.theme.defaultPadding
 import com.dnovaes.stockcontrol.ui.theme.photoButtonSize
 import com.dnovaes.stockcontrol.features.addproduct.viewmodel.AddViewModel
+import com.dnovaes.stockcontrol.type.NewProduct
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +81,11 @@ fun AddProductPage(
     onBackPressed: () -> Unit,
     onFinishRegistration: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val rememberScope = rememberCoroutineScope()
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -105,7 +115,17 @@ fun AddProductPage(
                 LoadingOverlay(stringResource(R.string.add_loading_screen_label))
             }
             currentState.isDoneProductRegistration() -> {
-                onFinishRegistration()
+                currentState.error?.let {
+                    val errorMessage = stringResource(id = it.errorCode.resId)
+                    rememberScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = errorMessage,
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
+                } ?: run {
+                    onFinishRegistration()
+                }
             }
         }
 
@@ -257,7 +277,15 @@ fun AddInitialPage(
                 stringResource(R.string.add_register_label_bt),
                 Modifier.padding(vertical = 4.dp)
             ) {
-                viewModel.registerProduct()
+                val newProduct = NewProduct(
+                    name = nameState.value,
+                    image = "",
+                    brand = brandNameState.value,
+                    supplier = supplierNameState.value,
+                    categoryId = selectedCategory,
+                    companyId = "1"
+                )
+                viewModel.registerProduct(newProduct)
             }
 
             StockNegativeButton(
