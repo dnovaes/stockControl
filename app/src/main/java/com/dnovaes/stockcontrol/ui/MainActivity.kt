@@ -44,6 +44,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.apollographql.apollo3.ApolloClient
+import com.dnovaes.stockcontrol.BuildConfig
 import com.dnovaes.stockcontrol.MainViewModel
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.StockNavHost
@@ -85,12 +87,18 @@ class MainActivity : PrinterActivity() {
         scanPairedDevices()
         connectToPrinter()
 
+        val graphQlStockURL = "${BuildConfig.BASE_API_URL}/query"
+        val apolloClient = ApolloClient.Builder()
+            .serverUrl(graphQlStockURL)
+            .build()
+
         setContent {
             StockControlTheme {
                 Surface {
                     val navController: NavHostController = rememberNavController()
                     StockNavHost(
                         context = this@MainActivity,
+                        serviceClient = apolloClient,
                         navHostController = navController,
                         bluetoothManager = bluetoothManager
                     )

@@ -5,7 +5,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apollographql.apollo3.ApolloClient
+import com.dnovaes.stockcontrol.GetAllCompaniesQuery
+import com.dnovaes.stockcontrol.common.models.ErrorCode
+import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.features.addproduct.models.AddProcess
+import com.dnovaes.stockcontrol.features.addproduct.models.AddUIError
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIModel
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIObservable
 import com.dnovaes.stockcontrol.ui.State
@@ -13,7 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class AddViewModel: ViewModel() {
+class AddViewModel(
+    private val apolloClient: ApolloClient
+): ViewModel() {
 
     private val initialObservable = AddUIObservable(
         state = State.START,
@@ -23,7 +30,6 @@ class AddViewModel: ViewModel() {
 
     private var _addState = initialObservable
     val addState: MutableState<AddUIObservable> = mutableStateOf(_addState)
-
 
     fun resetState() {
         _addState = initialObservable
@@ -43,9 +49,25 @@ class AddViewModel: ViewModel() {
             _addState = _addState.asAddingProduct()
             addState.value = _addState
 
-            delay(2000)
-
-            _addState = _addState.asDoneAddProduct()
+            try {
+                val response = apolloClient.query(GetAllCompaniesQuery()).execute()
+                response.data?.let {
+                    log("registerProduct) success response: ${it.getAllCompanies}")
+                }
+                response.errors?.let {
+                    log("registerProduct) fail response: $it")
+                }
+                delay(2000)
+                _addState = _addState.asDoneAddProduct()
+            } catch (e: Exception) {
+                log("add-exception: ${e.localizedMessage}, ${e.stackTraceToString()}")
+                val error = AddUIError(
+                    errorCode = ErrorCode.UNKNOWN_EXCEPTION,
+                    additionalParams = emptyMap()
+                )
+                _addState = _addState.asDoneAddProduct()
+                    .withError(error)
+            }
             addState.value = _addState
         }
     }

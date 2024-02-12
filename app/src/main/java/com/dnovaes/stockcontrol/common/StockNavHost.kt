@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.apollographql.apollo3.ApolloClient
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.extensions.navigateSingleTopTo
 import com.dnovaes.stockcontrol.common.ui.genericscreens.FullScreenAlert
@@ -22,6 +23,7 @@ import com.dnovaes.stockcontrol.utilities.StockBluetoothManager
 @Composable
 fun StockNavHost(
     context: Context,
+    serviceClient: ApolloClient,
     navHostController: NavHostController,
     bluetoothManager: StockBluetoothManager
 ) {
@@ -40,7 +42,7 @@ fun StockNavHost(
         composable(route = "AddProductPage") {
             AddProductPage(
                 context = context,
-                viewModel = AddViewModel(),
+                viewModel = AddViewModel(serviceClient),
                 onBackPressed =  {
                     navHostController.popBackStack()
                 },

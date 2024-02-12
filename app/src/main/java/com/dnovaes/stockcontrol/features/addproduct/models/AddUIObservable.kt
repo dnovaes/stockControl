@@ -1,14 +1,17 @@
 package com.dnovaes.stockcontrol.features.addproduct.models
 
+import com.dnovaes.stockcontrol.common.models.UIErrorInterface
 import com.dnovaes.stockcontrol.ui.State
 
 
 data class AddUIObservable(
     val state: State,
     val data: AddUIModel,
-    val process: AddProcess
+    val process: AddProcess,
+    val error: UIErrorInterface? = null
 ) {
     fun withProcess(process: AddProcess) = this.copy(process = process)
+    fun withError(error: UIErrorInterface) = this.copy(error = error)
 
     fun asAddingProduct(): AddUIObservable {
         return copy(
