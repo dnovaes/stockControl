@@ -34,6 +34,8 @@
     <!-- Error strings -->
     <string name="error_code_422">Desculpe, servidor não conseguiu processar seu pedido</string>
     <string name="unknown_exception">Desculpe, Erro de sistema desconhecido, contate o administrador</string>
+    <string name="invalid_product_model">Produto não identificado no servidor, contate o administrador</string>
+
     <string name="landing_page_menu_register_products">Cadastrar Produtos</string>
     <string name="landing_page_manage_stock">Gerenciar Estoque</string>
 

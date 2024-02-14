@@ -10,6 +10,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.dnovaes.stockcontrol.AddProductMutation
 import com.dnovaes.stockcontrol.GetAllCompaniesQuery
 import com.dnovaes.stockcontrol.common.models.ErrorCode
+import com.dnovaes.stockcontrol.common.models.business.Product
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.utils.SessionManager
 import com.dnovaes.stockcontrol.features.addproduct.models.AddProcess
@@ -73,8 +74,25 @@ class AddViewModel(
 
     private fun processRegisterProductResponse(response: ApolloResponse<AddProductMutation.Data>) {
         response.data?.let {
-            log("registerProduct) success response: ${it.createProduct}")
-            _addState = _addState.asDoneAddProduct()
+            it.createProduct.apply {
+                log("registerProduct) success response: $this")
+                val newProduct = Product(
+                    id = id,
+                    name = name,
+                    imageLogo = image,
+                    categoryId = category.id,
+                    brand = brand,
+                    supplier = supplier,
+                )
+                SessionManager.saveProduct(newProduct)
+                val newModel = _addState.data.copy(
+                    lastAddedProduct = newProduct
+                )
+                _addState = _addState
+                    .withData(newModel)
+                    .asDoneAddProduct()
+                addState.value = _addState
+            }
         }
         response.errors?.let {
             log("registerProduct) fail response: $it")
@@ -84,8 +102,8 @@ class AddViewModel(
             )
             _addState = _addState.asDoneAddProduct()
                 .withError(error)
+            addState.value = _addState
         }
-        addState.value = _addState
     }
 
     fun getAllCompanies() {

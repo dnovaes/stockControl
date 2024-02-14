@@ -2,5 +2,11 @@ mutation AddProduct($product: NewProduct!) {
   createProduct(input: $product) {
     id
     name
+    image
+    category {
+      id
+    }
+    brand
+    supplier
   }
 }

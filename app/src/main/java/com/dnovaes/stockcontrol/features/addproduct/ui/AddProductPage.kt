@@ -59,6 +59,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.R
+import com.dnovaes.stockcontrol.common.models.business.Product
 import com.dnovaes.stockcontrol.common.models.business.ProductCategory
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
@@ -80,7 +81,7 @@ fun AddProductPage(
     context: Context,
     viewModel: AddViewModel,
     onBackPressed: () -> Unit,
-    onFinishRegistration: () -> Unit
+    onFinishRegistration: (Product) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val rememberScope = rememberCoroutineScope()
@@ -125,7 +126,17 @@ fun AddProductPage(
                         )
                     }
                 } ?: run {
-                    onFinishRegistration()
+                    currentState.data.lastAddedProduct?.let { product ->
+                        onFinishRegistration(product)
+                    } ?: run {
+                        val errorMessage = stringResource(id = R.string.invalid_product_model)
+                        rememberScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = errorMessage,
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -134,7 +145,6 @@ fun AddProductPage(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddInitialPage(
     context: Context,

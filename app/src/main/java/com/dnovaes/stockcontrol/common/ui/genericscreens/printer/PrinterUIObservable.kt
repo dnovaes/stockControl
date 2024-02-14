@@ -21,13 +21,12 @@ data class PrinterUIObservable(
     override val process: PrinterProcess,
     override val data: PrinterUIModel,
     override val error: UIErrorInterface? = null
-): UIObservable<PrinterUIObservable>(state, process, data, error) {
+): UIObservable<PrinterUIModel>(state, process, data, error) {
 
     fun withError(error: UIErrorInterface?)
         = this.copy(error = error)
 
-    fun withData(data: PrinterUIModel): PrinterUIObservable
-        = this.copy(data = data)
+    override fun withData(model: PrinterUIModel) = this.copy(data = data)
 
     fun withState(state: State): PrinterUIObservable
             = this.copy(state = state)

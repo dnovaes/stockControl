@@ -1,17 +1,21 @@
 package com.dnovaes.stockcontrol.features.addproduct.models
 
 import com.dnovaes.stockcontrol.common.models.UIErrorInterface
+import com.dnovaes.stockcontrol.common.models.UIObservable
+import com.dnovaes.stockcontrol.common.models.UIProcessInterface
 import com.dnovaes.stockcontrol.ui.State
 
 
 data class AddUIObservable(
-    val state: State,
-    val data: AddUIModel,
-    val process: AddProcess,
-    val error: UIErrorInterface? = null
-) {
+    override val state: State,
+    override val data: AddUIModel,
+    override val process: AddProcess,
+    override val error: UIErrorInterface? = null
+): UIObservable<AddUIModel>(state, process, data, error) {
     fun withProcess(process: AddProcess) = this.copy(process = process)
     fun withError(error: UIErrorInterface) = this.copy(error = error)
+
+    override fun withData(model: AddUIModel) = this.copy(data = model)
 
     fun asAddingProduct(): AddUIObservable {
         return copy(
@@ -43,7 +47,7 @@ data class AddUIObservable(
 
 }
 
-enum class AddProcess {
+enum class AddProcess: UIProcessInterface {
     ADD_PRODUCT_REQUEST,
     LOAD_INITIAL_DATA
 }
