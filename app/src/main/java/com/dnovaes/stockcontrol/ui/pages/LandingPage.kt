@@ -7,23 +7,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.dnovaes.stockcontrol.features.landing.viewmodel.LandingViewModel
 
 @Composable
 fun LandingPage(
+    viewModel: LandingViewModel,
     onClickAdd: () -> Unit,
     onClickManage: () -> Unit,
 ) {
+    LaunchedEffect(key1 = true) {
+        viewModel.loadCategories()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()

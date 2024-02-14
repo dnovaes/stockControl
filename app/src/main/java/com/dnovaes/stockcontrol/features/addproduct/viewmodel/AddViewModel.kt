@@ -11,6 +11,7 @@ import com.dnovaes.stockcontrol.AddProductMutation
 import com.dnovaes.stockcontrol.GetAllCompaniesQuery
 import com.dnovaes.stockcontrol.common.models.ErrorCode
 import com.dnovaes.stockcontrol.common.monitoring.log
+import com.dnovaes.stockcontrol.common.utils.SessionManager
 import com.dnovaes.stockcontrol.features.addproduct.models.AddProcess
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIError
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIModel
@@ -32,7 +33,9 @@ class AddViewModel(
     private val initialObservable = AddUIObservable(
         state = State.START,
         process = AddProcess.LOAD_INITIAL_DATA,
-        data = AddUIModel(),
+        data = AddUIModel(
+            categories = SessionManager.loadProductCategories()
+        ),
     )
 
     private var _addState = initialObservable
@@ -52,7 +55,7 @@ class AddViewModel(
     }
 
     fun registerProduct(product: NewProduct) {
-        val categoryId = "1" //product.categoryId
+        val categoryId = product.categoryId
         val mappedProduct = product.copy(categoryId = categoryId)
 
         viewModelScope.launch(Dispatchers.IO) {

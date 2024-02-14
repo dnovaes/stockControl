@@ -59,6 +59,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.R
+import com.dnovaes.stockcontrol.common.models.business.ProductCategory
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
@@ -215,10 +216,14 @@ fun AddInitialPage(
         )
 
         var expandedDropdown by remember { mutableStateOf(false) }
-        var selectedCategory by remember { mutableStateOf("") }
+        var selectedCategory by remember {
+            mutableStateOf(
+                currentState.data.categories.firstOrNull() ?: ProductCategory.EMPTY_CATEGORY
+            )
+        }
 
         StockDropdownField(
-            selectedCategory = selectedCategory,
+            selectedCategory = selectedCategory.name,
             onClick = {
                 expandedDropdown = !expandedDropdown
             }
@@ -233,13 +238,13 @@ fun AddInitialPage(
                 expanded = expandedDropdown,
                 onDismissRequest = { },
                 content = {
-                    for (i in 0..10) {
-                        val menuItemText = "Categoria$i"
+                    currentState.data.categories.forEachIndexed { _, productCategory ->
+                        val menuItemText = productCategory.name
                         DropdownMenuItem(
                             text = { Text(menuItemText) },
                             onClick = {
                                 expandedDropdown = false
-                                selectedCategory = menuItemText
+                                selectedCategory = productCategory
                             }
                         )
                     }
@@ -282,7 +287,7 @@ fun AddInitialPage(
                     image = "",
                     brand = brandNameState.value,
                     supplier = supplierNameState.value,
-                    categoryId = selectedCategory,
+                    categoryId = selectedCategory.id,
                     companyId = "1"
                 )
                 viewModel.registerProduct(newProduct)

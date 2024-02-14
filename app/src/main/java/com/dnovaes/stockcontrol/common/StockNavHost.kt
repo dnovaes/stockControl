@@ -15,6 +15,7 @@ import com.dnovaes.stockcontrol.common.ui.genericscreens.printer.PrintPreviewPag
 import com.dnovaes.stockcontrol.common.ui.genericscreens.printer.PrintPreviewVIewModel
 import com.dnovaes.stockcontrol.features.addproduct.ui.AddProductPage
 import com.dnovaes.stockcontrol.features.addproduct.viewmodel.AddViewModel
+import com.dnovaes.stockcontrol.features.landing.viewmodel.LandingViewModel
 import com.dnovaes.stockcontrol.features.updateproduct.ui.UpdateProductPage
 import com.dnovaes.stockcontrol.features.updateproduct.viewmodel.UpdateViewModel
 import com.dnovaes.stockcontrol.ui.pages.LandingPage
@@ -33,6 +34,7 @@ fun StockNavHost(
     ) {
         composable(route = "LandingPage") {
             LandingPage(
+                viewModel = LandingViewModel(serviceClient),
                 onClickAdd = {
                     navHostController.navigateSingleTopTo("AddProductPage")
                 },
