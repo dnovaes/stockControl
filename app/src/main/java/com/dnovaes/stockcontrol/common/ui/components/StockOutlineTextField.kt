@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +14,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.ui.theme.defaultPadding
 
-@ExperimentalMaterial3Api
 @Composable
 fun ColumnScope.StockOutlineTextField(
     labelText: String,
@@ -37,7 +35,6 @@ fun ColumnScope.StockOutlineTextField(
     )
 }
 
-@ExperimentalMaterial3Api
 @Composable
 fun RowScope.StockOutlineTextField(
     modifier: Modifier,

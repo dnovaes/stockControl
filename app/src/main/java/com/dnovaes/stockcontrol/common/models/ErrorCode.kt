@@ -8,5 +8,8 @@ enum class ErrorCode: ErrorCodeInterface {
     },
     UNKNOWN_EXCEPTION {
         override val resId = R.string.unknown_exception
+    },
+    INVALID_PRODUCT_MODEL{
+        override val resId = R.string.invalid_product_model
     }
 }
