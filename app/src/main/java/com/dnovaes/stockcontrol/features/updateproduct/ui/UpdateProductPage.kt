@@ -106,7 +106,11 @@ fun UpdateProductPage(
         LaunchedEffect(key1 = true) {
             viewModel.loadProductInfo(productId)
         }
-        UpdateFieldsPage(paddingValues, viewModel, onBackPressed = onBackPressed)
+        UpdateFieldsPage(
+            paddingValues,
+            viewModel,
+            onBackPressed = onBackPressed,
+            onFinishRegistration = onFinishRegistration)
     }
 }
 
@@ -114,7 +118,8 @@ fun UpdateProductPage(
 fun UpdateFieldsPage(
     paddingValues: PaddingValues,
     viewModel: UpdateViewModel,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onFinishRegistration: () -> Unit
 ) {
     val currentState = viewModel.updateState.value
 
@@ -123,7 +128,7 @@ fun UpdateFieldsPage(
             LoadingOverlay(stringResource(R.string.update_loading_screen_label))
         }
         currentState.isDoneUpdateProduct() -> {
-            //onFinishRegistration()
+            onFinishRegistration()
         }
     }
 

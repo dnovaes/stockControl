@@ -57,7 +57,6 @@ class LandingViewModel @Inject constructor(
                         log("$logTag) localizedMessage: ${it.localizedMessage}, cause: ${it.cause}")
                     }
                     .collectLatest {
-                        delay(1000)
                         processCategoriesResponse(logTag, it)
                     }
             } catch (e: Exception) {
