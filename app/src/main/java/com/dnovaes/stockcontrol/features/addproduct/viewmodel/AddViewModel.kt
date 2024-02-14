@@ -17,12 +17,10 @@ import com.dnovaes.stockcontrol.features.addproduct.models.AddUIError
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIModel
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIObservable
 import com.dnovaes.stockcontrol.type.NewProduct
-import com.dnovaes.stockcontrol.type.Product
 import com.dnovaes.stockcontrol.ui.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

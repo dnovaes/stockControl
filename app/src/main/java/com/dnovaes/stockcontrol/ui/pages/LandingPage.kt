@@ -12,8 +12,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.dnovaes.stockcontrol.R
+import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
 import com.dnovaes.stockcontrol.features.landing.viewmodel.LandingViewModel
 
@@ -27,6 +29,23 @@ fun LandingPage(
         viewModel.loadCategories()
     }
 
+    val currentState = viewModel.state.value
+    when {
+        currentState.isLoadingInitialData() -> {
+            LoadingOverlay(stringResource(id = R.string.generic_loading_screen_label))
+        }
+        else -> {
+            LandingMenuPage(onClickAdd, onClickManage)
+        }
+    }
+
+}
+
+@Composable
+fun LandingMenuPage(
+    onClickAdd: () -> Unit,
+    onClickManage: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -46,12 +65,12 @@ fun LandingPage(
             modifier = Modifier.align(Alignment.Center)
         ) {
             StockButton(
-                textContent = "Cadastrar Produtos",
+                textContent = stringResource(R.string.landing_page_menu_register_products),
             ) {
                 onClickAdd()
             }
             StockButton(
-                "Gerenciar Estoque",
+                stringResource(R.string.landing_page_manage_stock),
             ) {
                 onClickManage()
             }

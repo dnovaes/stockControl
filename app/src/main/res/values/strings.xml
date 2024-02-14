@@ -5,6 +5,7 @@
     <string name="product_provider_field">Fornecedor</string>
 
     <string name="generic_success_page_negative_bt_label">Sair</string>
+    <string name="generic_loading_screen_label">Carregando</string>
 
     <string name="add_product_screen_title">Cadastrar Produto</string>
     <string name="add_product_category_field">Categoria</string>
@@ -33,5 +34,7 @@
     <!-- Error strings -->
     <string name="error_code_422">Desculpe, servidor não conseguiu processar seu pedido</string>
     <string name="unknown_exception">Desculpe, Erro de sistema desconhecido, contate o administrador</string>
+    <string name="landing_page_menu_register_products">Cadastrar Produtos</string>
+    <string name="landing_page_manage_stock">Gerenciar Estoque</string>
 
 </resources>

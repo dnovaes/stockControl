@@ -1,6 +1,7 @@
 package com.dnovaes.stockcontrol.features.landing.models
 
 import com.dnovaes.stockcontrol.common.models.UIErrorInterface
+import com.dnovaes.stockcontrol.features.addproduct.models.AddProcess
 import com.dnovaes.stockcontrol.ui.State
 
 data class LandingUIObservable(
@@ -21,6 +22,10 @@ data class LandingUIObservable(
 
     fun withError(error: UIErrorInterface?): LandingUIObservable
         = copy(error = error)
+
+    fun isLoadingInitialData() =
+        state == State.PROCESSING &&
+                process == LandingProcess.LOAD_INITIAL_DATA
 }
 
 class LandingUIModel {
