@@ -10,6 +10,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.dnovaes.stockcontrol.AddProductMutation
 import com.dnovaes.stockcontrol.GetAllCompaniesQuery
 import com.dnovaes.stockcontrol.common.models.ErrorCode
+import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.common.models.business.Product
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.utils.SessionManager
@@ -18,14 +19,16 @@ import com.dnovaes.stockcontrol.features.addproduct.models.AddUIError
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIModel
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIObservable
 import com.dnovaes.stockcontrol.type.NewProduct
-import com.dnovaes.stockcontrol.ui.State
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AddViewModel(
+@HiltViewModel
+class AddViewModel @Inject constructor(
     private val apolloClient: ApolloClient
 ): ViewModel() {
 

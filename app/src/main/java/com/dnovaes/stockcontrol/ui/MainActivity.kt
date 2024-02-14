@@ -44,11 +44,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.apollographql.apollo3.ApolloClient
-import com.dnovaes.stockcontrol.BuildConfig
-import com.dnovaes.stockcontrol.MainViewModel
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.StockNavHost
+import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.PrinterActivity
 import com.dnovaes.stockcontrol.common.utils.QRCodeManager.generateQRCode
@@ -57,19 +55,11 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.Executors
 
-enum class State {
-    START,
-    PROCESSING,
-    DONE,
-    CAPTURING,
-    IDLE
-}
-
+@AndroidEntryPoint
 class MainActivity : PrinterActivity() {
-
-    private val viewModel: MainViewModel by viewModels()
 
     private val barCodeScanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder()
@@ -87,18 +77,12 @@ class MainActivity : PrinterActivity() {
         scanPairedDevices()
         connectToPrinter()
 
-        val graphQlStockURL = "${BuildConfig.BASE_API_URL}/query"
-        val apolloClient = ApolloClient.Builder()
-            .serverUrl(graphQlStockURL)
-            .build()
-
         setContent {
             StockControlTheme {
                 Surface {
                     val navController: NavHostController = rememberNavController()
                     StockNavHost(
                         context = this@MainActivity,
-                        serviceClient = apolloClient,
                         navHostController = navController,
                         bluetoothManager = bluetoothManager
                     )
@@ -125,7 +109,9 @@ class MainActivity : PrinterActivity() {
                             style = MaterialTheme.typography.bodySmall
                         )
                         Button(
-                            onClick = { viewModel.resetState() },
+                            onClick = {
+                                //viewModel.resetState()
+                            },
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(horizontal = 16.dp, vertical = 16.dp)
@@ -175,7 +161,7 @@ class MainActivity : PrinterActivity() {
                     .width(180.dp)
                     .height(44.dp),
                 onClick = {
-                    viewModel.startCapture()
+                    //viewModel.startCapture()
                 }
             ) {
                 Text(
@@ -307,13 +293,13 @@ class MainActivity : PrinterActivity() {
                             if (barcodes.isNotEmpty()) {
                                 log("Scanned barcode: $barcodes")
                                 scannedValue = barcodes.first().rawValue
-                                viewModel.finishCapturing()
+                                //viewModel.finishCapturing()
                             }
                         }
                         .addOnFailureListener {
                             // Handle any errors
                             imageProxy.close()
-                            viewModel.finishCapturing()
+                            //viewModel.finishCapturing()
                         }
                 }
             }

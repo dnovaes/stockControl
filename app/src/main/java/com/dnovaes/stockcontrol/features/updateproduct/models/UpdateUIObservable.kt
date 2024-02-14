@@ -1,9 +1,9 @@
 package com.dnovaes.stockcontrol.features.updateproduct.models
 
+import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.common.models.UIErrorInterface
 import com.dnovaes.stockcontrol.common.models.UIObservable
 import com.dnovaes.stockcontrol.common.models.UIProcessInterface
-import com.dnovaes.stockcontrol.ui.State
 
 
 data class UpdateUIObservable(

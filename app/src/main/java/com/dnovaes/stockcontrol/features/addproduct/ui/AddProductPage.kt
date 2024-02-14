@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.models.business.Product
 import com.dnovaes.stockcontrol.common.models.business.ProductCategory
@@ -79,7 +80,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddProductPage(
     context: Context,
-    viewModel: AddViewModel,
+    viewModel: AddViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
     onFinishRegistration: (Product) -> Unit
 ) {

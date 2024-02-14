@@ -5,7 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dnovaes.stockcontrol.ui.State
+import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.utilities.StockBluetoothManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

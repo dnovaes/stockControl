@@ -1,6 +1,5 @@
 package com.dnovaes.stockcontrol.common.models
 
-import com.dnovaes.stockcontrol.ui.State
 
 abstract class UIObservable<M: UIModelInterface>(
     open val state: State,

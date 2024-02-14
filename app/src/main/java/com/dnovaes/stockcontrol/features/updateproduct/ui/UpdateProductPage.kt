@@ -1,6 +1,5 @@
 package com.dnovaes.stockcontrol.features.updateproduct.ui
 
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -27,12 +26,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +52,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.extensions.formatCurrency
 import com.dnovaes.stockcontrol.common.monitoring.log
@@ -56,23 +60,26 @@ import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
 import com.dnovaes.stockcontrol.common.ui.components.StockNegativeButton
 import com.dnovaes.stockcontrol.common.ui.components.StockOutlineTextField
+import com.dnovaes.stockcontrol.common.utils.SessionManager
 import com.dnovaes.stockcontrol.ui.icons.uploadIcon
 import com.dnovaes.stockcontrol.ui.theme.AnneBackground
 import com.dnovaes.stockcontrol.ui.theme.AnnePrimary
 import com.dnovaes.stockcontrol.ui.theme.defaultPadding
 import com.dnovaes.stockcontrol.ui.theme.photoButtonSize
 import com.dnovaes.stockcontrol.features.updateproduct.viewmodel.UpdateViewModel
-import java.text.DecimalFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateProductPage(
-    context: Context,
-    viewModel: UpdateViewModel,
+    productId: String,
+    viewModel: UpdateViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
     onFinishRegistration: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -95,29 +102,33 @@ fun UpdateProductPage(
             )
         }
     ) { paddingValues ->
-        val currentState = viewModel.updateState.value
 
-        when {
-            currentState.isUpdatingProduct() -> {
-                LoadingOverlay(stringResource(R.string.update_loading_screen_label))
-            }
-            currentState.isDoneUpdateProduct() -> {
-                onFinishRegistration()
-            }
+        LaunchedEffect(key1 = true) {
+            viewModel.loadProductInfo(productId)
         }
-
         UpdateFieldsPage(paddingValues, viewModel, onBackPressed = onBackPressed)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateFieldsPage(
     paddingValues: PaddingValues,
     viewModel: UpdateViewModel,
     onBackPressed: () -> Unit
 ) {
-    val model = viewModel.updateState.value.data
+    val currentState = viewModel.updateState.value
+
+    when {
+        currentState.isUpdatingProduct() -> {
+            LoadingOverlay(stringResource(R.string.update_loading_screen_label))
+        }
+        currentState.isDoneUpdateProduct() -> {
+            //onFinishRegistration()
+        }
+    }
+
+    val model = currentState.data
+    val product = model.productInfo ?: return
 
     Column(
         modifier = Modifier
@@ -144,7 +155,7 @@ fun UpdateFieldsPage(
             }
         }
 
-        val nameState = remember { mutableStateOf("") }
+        val nameState = remember { mutableStateOf(product.name) }
         StockOutlineTextField(
             labelText = "Nome",
             currentValue = nameState.value,
@@ -154,13 +165,14 @@ fun UpdateFieldsPage(
             },
         )
 
+        val categoryName = SessionManager.loadProductCategories().firstOrNull { it.id == product.categoryId }?.name
         StockDropdownField(
-            selectedCategory = "CategoriaTemp",
-            colors = TextFieldDefaults.outlinedTextFieldColors(),
+            selectedCategory = categoryName ?: "",
+            colors = OutlinedTextFieldDefaults.colors(),
             onClick =  null
         )
 
-        val brandNameState = remember { mutableStateOf("") }
+        val brandNameState = remember { mutableStateOf(product.brand) }
         StockOutlineTextField(
             labelText = stringResource(R.string.product_brand_field),
             currentValue = brandNameState.value,
@@ -170,7 +182,7 @@ fun UpdateFieldsPage(
             },
         )
 
-        val supplierNameState = remember { mutableStateOf("") }
+        val supplierNameState = remember { mutableStateOf(product.supplier) }
         StockOutlineTextField(
             labelText = stringResource(R.string.product_provider_field),
             currentValue = supplierNameState.value,
@@ -340,7 +352,6 @@ fun FilledPhotoButton(image: Bitmap) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StockDropdownField(
     selectedCategory: String,

@@ -3,7 +3,7 @@ package com.dnovaes.stockcontrol
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.dnovaes.stockcontrol.ui.State
+import com.dnovaes.stockcontrol.common.models.State
 
 class MainViewModel: ViewModel() {
 

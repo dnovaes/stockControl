@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
@@ -21,30 +23,28 @@ import com.dnovaes.stockcontrol.features.landing.viewmodel.LandingViewModel
 
 @Composable
 fun LandingPage(
-    viewModel: LandingViewModel,
-    onClickAdd: () -> Unit,
-    onClickManage: () -> Unit,
+    viewModel: LandingViewModel = hiltViewModel(),
+    navHostController: NavHostController
 ) {
     LaunchedEffect(key1 = true) {
         viewModel.loadCategories()
     }
 
     val currentState = viewModel.state.value
+
     when {
         currentState.isLoadingInitialData() -> {
             LoadingOverlay(stringResource(id = R.string.generic_loading_screen_label))
         }
         else -> {
-            LandingMenuPage(onClickAdd, onClickManage)
+            LandingMenuPage(navHostController)
         }
     }
-
 }
 
 @Composable
 fun LandingMenuPage(
-    onClickAdd: () -> Unit,
-    onClickManage: () -> Unit,
+    navHostController: NavHostController
 ) {
     Box(
         modifier = Modifier
@@ -67,12 +67,12 @@ fun LandingMenuPage(
             StockButton(
                 textContent = stringResource(R.string.landing_page_menu_register_products),
             ) {
-                onClickAdd()
+                navHostController.navigate("AddProductPage")
             }
             StockButton(
                 stringResource(R.string.landing_page_manage_stock),
             ) {
-                onClickManage()
+                //onClickManage()
             }
         }
     }
