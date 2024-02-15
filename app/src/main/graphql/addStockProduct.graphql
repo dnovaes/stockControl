@@ -1,0 +1,17 @@
+mutation AddStockProduct($stockProduct: NewStockProduct!) {
+  createStockProduct(input: $stockProduct) {
+    product {
+      id
+      name
+    }
+    store {
+      id
+      name
+    }
+    styleColor
+    size
+    sku
+    price
+    quantity
+  }
+}

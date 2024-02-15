@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,7 +32,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,6 +66,7 @@ import com.dnovaes.stockcontrol.ui.theme.AnnePrimary
 import com.dnovaes.stockcontrol.ui.theme.defaultPadding
 import com.dnovaes.stockcontrol.ui.theme.photoButtonSize
 import com.dnovaes.stockcontrol.features.updateproduct.viewmodel.UpdateViewModel
+import com.dnovaes.stockcontrol.type.NewStockProduct
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +74,7 @@ fun UpdateProductPage(
     productId: String,
     viewModel: UpdateViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
-    onFinishRegistration: () -> Unit
+    onFinishRegistration: (String, String) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -96,7 +96,7 @@ fun UpdateProductPage(
                             onBackPressed()
                         }
                     ) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 }
             )
@@ -110,7 +110,8 @@ fun UpdateProductPage(
             paddingValues,
             viewModel,
             onBackPressed = onBackPressed,
-            onFinishRegistration = onFinishRegistration)
+            onFinishRegistration = onFinishRegistration
+        )
     }
 }
 
@@ -119,7 +120,7 @@ fun UpdateFieldsPage(
     paddingValues: PaddingValues,
     viewModel: UpdateViewModel,
     onBackPressed: () -> Unit,
-    onFinishRegistration: () -> Unit
+    onFinishRegistration: (String, String) -> Unit
 ) {
     val currentState = viewModel.updateState.value
 
@@ -128,7 +129,9 @@ fun UpdateFieldsPage(
             LoadingOverlay(stringResource(R.string.update_loading_screen_label))
         }
         currentState.isDoneUpdateProduct() -> {
-            onFinishRegistration()
+            currentState.data.lastAddedStockProduct?.let {
+                onFinishRegistration(it.sku, it.price)
+            }
         }
     }
 
@@ -197,11 +200,12 @@ fun UpdateFieldsPage(
             },
         )
 
+        val priceSellNameState = remember { mutableStateOf(TextFieldValue("0,00")) }
+        val stockQuantityState = remember { mutableIntStateOf(1) }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            val priceSellNameState = remember { mutableStateOf(TextFieldValue("0,00")) }
             StockOutlineTextField(
                 modifier = Modifier
                     .padding(
@@ -246,7 +250,6 @@ fun UpdateFieldsPage(
                 },
             )
 
-            val stockState = remember { mutableIntStateOf(0) }
             OutlinedTextField(
                 modifier = Modifier
                     .padding(
@@ -262,13 +265,13 @@ fun UpdateFieldsPage(
                         textAlign = TextAlign.Center,
                     )
                 },
-                value = stockState.intValue.toString(),
+                value = stockQuantityState.intValue.toString(),
                 textStyle = TextStyle(textAlign = TextAlign.Center),
                 leadingIcon = {
                     IconButton(
                         onClick = {
                             log("plus icon clicked")
-                            stockState.intValue++
+                            stockQuantityState.intValue++
                         }
                     ) {
                         Text(text = "+")
@@ -278,8 +281,8 @@ fun UpdateFieldsPage(
                     IconButton(
                         onClick = {
                             log("minus icon clicked")
-                            if (stockState.intValue > 0) {
-                                stockState.intValue--
+                            if (stockQuantityState.intValue > 1) {
+                                stockQuantityState.intValue--
                             }
                         }
                     ) {
@@ -292,7 +295,7 @@ fun UpdateFieldsPage(
                     keyboardType = KeyboardType.Number
                 ),
                 onValueChange = {
-                    stockState.intValue = it.toInt()
+                    stockQuantityState.intValue = it.toInt()
                 },
             )
         }
@@ -309,7 +312,14 @@ fun UpdateFieldsPage(
                 stringResource(R.string.update_product_positive_label_bt),
                 Modifier.padding(vertical = 4.dp)
             ) {
-                viewModel.updateProduct()
+                val newStockProduct = NewStockProduct(
+                    price = priceSellNameState.value.text,
+                    quantity = stockQuantityState.intValue,
+                    size = "1",
+                    productId = product.id,
+                    storeId = SessionManager.storeId
+                )
+                viewModel.createStockProduct(newStockProduct)
             }
 
             StockNegativeButton(

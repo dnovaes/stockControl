@@ -96,8 +96,7 @@ class AddViewModel @Inject constructor(
                     .asDoneAddProduct()
                 addState.value = _addState
             }
-        }
-        response.errors?.let {
+        } ?: response.errors?.let {
             log("registerProduct) fail response: $it")
             val error = AddUIError(
                 errorCode = ErrorCode.UNKNOWN_EXCEPTION,

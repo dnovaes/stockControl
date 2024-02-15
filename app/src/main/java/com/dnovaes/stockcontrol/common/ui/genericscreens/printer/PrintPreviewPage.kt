@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -47,11 +46,11 @@ import com.smarttoolfactory.screenshot.ScreenshotBox
 import com.smarttoolfactory.screenshot.rememberScreenshotState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrintPreviewPage(
     viewModel: PrintPreviewVIewModel,
     sku: String,
+    price: String,
     onNegativeButtonClick: () -> Unit,
 ) {
     val qRCodeImage = QRCodeManager.generateQRCode(sku, 100, 100)
@@ -131,7 +130,11 @@ fun PrintPreviewPage(
                     .height(98.dp)
             ) {
                 ScreenshotBox(screenshotState = screenshotState) {
-                    PreviewPrintLabel(image = qRCodeImage)
+                    PreviewPrintLabel(
+                        image = qRCodeImage,
+                        sku = sku,
+                        price = price
+                    )
                 }
 
                 SideEffect {
@@ -180,7 +183,11 @@ fun PrintPreviewPage(
 }
 
 @Composable
-fun PreviewPrintLabel(image: Bitmap) {
+fun PreviewPrintLabel(
+    sku: String,
+    image: Bitmap,
+    price: String
+) {
     Row (
         modifier = Modifier.padding(8.dp)
     ) {
@@ -191,7 +198,7 @@ fun PreviewPrintLabel(image: Bitmap) {
         )
         Column {
             Text(
-                text = "00000111",
+                text = sku,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Left,
                 modifier = Modifier
@@ -201,7 +208,7 @@ fun PreviewPrintLabel(image: Bitmap) {
                 color = Color.Black
             )
             Text(
-                text = "R$1999,10",
+                text = "R$$price",
                 fontSize = 12.sp,
                 textAlign = TextAlign.Left,
                 modifier = Modifier

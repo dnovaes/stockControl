@@ -74,13 +74,15 @@ fun StockNavHost(
                 onBackPressed =  {
                     navHostController.popBackStack(route = "LandingPage", inclusive = false)
                 },
-                onFinishRegistration = {
-                    navHostController.navigateSingleTopTo("SuccessfulUpdateProductPage")
+                onFinishRegistration = { sku, price ->
+                    navHostController.navigateSingleTopTo("SuccessfulUpdateProductPage/$sku/${price}")
                 }
             )
         }
 
-        composable(route = "SuccessfulUpdateProductPage") {
+        composable(route = "SuccessfulUpdateProductPage/{sku}/{price}") {
+            val sku = it.arguments?.getString("sku") ?: "0"
+            val price = it.arguments?.getString("price") ?: "0"
             FullScreenAlert(
                 headerIcon = Icons.Filled.ThumbUp,
                 title = R.string.update_success_page_title,
@@ -88,7 +90,7 @@ fun StockNavHost(
                 positiveButtonLabel = R.string.update_success_page_positive_bt_label,
                 negativeButtonLabel = R.string.generic_success_page_negative_bt_label,
                 onPositiveButtonClick = {
-                    navHostController.navigateSingleTopTo("PrintPreviewPage")
+                    navHostController.navigateSingleTopTo("PrintPreviewPage/$sku/$price")
                 },
                 onNegativeButtonClick = {
                     navHostController.popBackStack()
@@ -96,10 +98,13 @@ fun StockNavHost(
             )
         }
 
-        composable(route = "PrintPreviewPage") {
+        composable(route = "PrintPreviewPage/{sku}/{price}") {
+            val sku = it.arguments?.getString("sku") ?: "0"
+            val price = it.arguments?.getString("price") ?: "0,00"
             PrintPreviewPage(
                 viewModel = PrintPreviewVIewModel(bluetoothManager),
-                sku = "00000111",
+                sku = sku,
+                price = price,
                 onNegativeButtonClick = {
                     navHostController.popBackStack()
                 }

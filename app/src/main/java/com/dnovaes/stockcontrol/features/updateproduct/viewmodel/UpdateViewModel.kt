@@ -5,17 +5,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
+import com.dnovaes.stockcontrol.AddStockProductMutation
 import com.dnovaes.stockcontrol.common.models.ErrorCode
 import com.dnovaes.stockcontrol.common.models.ErrorCodeInterface
 import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.common.models.UIErrorInterface
+import com.dnovaes.stockcontrol.common.models.business.StockProduct
+import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.utils.SessionManager
+import com.dnovaes.stockcontrol.features.addproduct.models.AddUIError
 import com.dnovaes.stockcontrol.features.updateproduct.models.UpdateProcess
 import com.dnovaes.stockcontrol.features.updateproduct.models.UpdateUIModel
 import com.dnovaes.stockcontrol.features.updateproduct.models.UpdateUIObservable
+import com.dnovaes.stockcontrol.type.NewStockProduct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,14 +46,64 @@ class UpdateViewModel @Inject constructor(
         updateState.value = _updateState
     }
 
-    fun updateProduct() {
+    fun createStockProduct(
+        newStockProduct: NewStockProduct,
+    ) {
+        _updateState = _updateState.asUpdatingProduct()
+        updateState.value = _updateState
+
         viewModelScope.launch(Dispatchers.IO) {
-            _updateState = _updateState.asUpdatingProduct()
-            updateState.value = _updateState
+            viewModelScope.launch(Dispatchers.IO) {
+                apolloClient.mutation(AddStockProductMutation(newStockProduct))
+                    .toFlow()
+                    .catch {
+                        log("localizedMessage: ${it.localizedMessage}, cause: ${it.cause}")
+                        val error = AddUIError(
+                            errorCode = ErrorCode.UNKNOWN_EXCEPTION,
+                            additionalParams = emptyMap()
+                        )
+                        _updateState = _updateState.withError(error)
+                    }
+                    .collectLatest {
+                        processAddStockProductResponse(it)
+                    }
+            }
+        }
+    }
 
-            delay(2000)
-
-            _updateState = _updateState.asDoneUpdateProduct()
+    private fun processAddStockProductResponse(response: ApolloResponse<AddStockProductMutation.Data>) {
+        val logTag = "addStockProduct"
+        response.data?.let {
+            it.createStockProduct.apply {
+                log("$logTag) success response: $this")
+                val newStockProduct = StockProduct(
+                    productId = product.id,
+                    productName = product.name,
+                    storeId = store.id,
+                    styleColor = styleColor,
+                    size = size,
+                    sku = sku,
+                    price = price,
+                    quantity = quantity,
+                )
+                SessionManager.saveStockProduct(newStockProduct)
+                val newModel = _updateState.data.copy(
+                    lastAddedStockProduct = newStockProduct
+                )
+                _updateState = _updateState
+                    .withData(newModel)
+                    .asDoneUpdateProduct()
+                updateState.value = _updateState
+            }
+        } ?: response.errors?.let {
+            log("$logTag) fail response: $it")
+            val error = AddUIError(
+                errorCode = ErrorCode.UNKNOWN_EXCEPTION,
+                additionalParams = emptyMap()
+            )
+            _updateState = _updateState
+                .withError(error)
+                .asDoneUpdateProduct()
             updateState.value = _updateState
         }
     }
@@ -55,8 +113,6 @@ class UpdateViewModel @Inject constructor(
         updateState.value = _updateState
 
         viewModelScope.launch {
-            delay(2000)
-
             SessionManager.loadLocalProductInfo(productId)?.let { product ->
                 val newModel = UpdateUIModel(productInfo = product)
                 _updateState = _updateState.asDoneLoadInitialData()
