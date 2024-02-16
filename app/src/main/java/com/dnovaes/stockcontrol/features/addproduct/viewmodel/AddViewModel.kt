@@ -135,4 +135,10 @@ class AddViewModel @Inject constructor(
             addState.value = _addState
         }
     }
+
+    fun snackBarShown() {
+        _addState = _addState
+            .withError(null)
+        addState.value = _addState
+    }
 }

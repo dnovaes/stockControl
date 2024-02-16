@@ -13,7 +13,7 @@ data class AddUIObservable(
     override val error: UIErrorInterface? = null
 ): UIObservable<AddUIModel>(state, process, data, error) {
     fun withProcess(process: AddProcess) = this.copy(process = process)
-    fun withError(error: UIErrorInterface) = this.copy(error = error)
+    fun withError(error: UIErrorInterface?) = this.copy(error = error)
 
     override fun withData(model: AddUIModel) = this.copy(data = model)
 

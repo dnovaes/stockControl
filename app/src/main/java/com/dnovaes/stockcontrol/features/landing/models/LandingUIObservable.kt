@@ -2,13 +2,20 @@ package com.dnovaes.stockcontrol.features.landing.models
 
 import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.common.models.UIErrorInterface
+import com.dnovaes.stockcontrol.common.models.UIModelInterface
+import com.dnovaes.stockcontrol.common.models.UIObservable
+import com.dnovaes.stockcontrol.common.models.UIProcessInterface
 
 data class LandingUIObservable(
-    private val state: State,
-    private val process: LandingProcess,
-    private val data: LandingUIModel,
-    private val error: UIErrorInterface? = null
-) {
+    override val state: State,
+    override val process: LandingProcess,
+    override val data: LandingUIModel,
+    override val error: UIErrorInterface? = null
+): UIObservable<LandingUIModel>(state, process, data, error) {
+
+    override fun withData(model: LandingUIModel): UIObservable<LandingUIModel>
+            = copy(data = model)
+
     fun asLoadingAppData() = copy(
         state = State.PROCESSING,
         process = LandingProcess.LOAD_INITIAL_DATA,
@@ -27,11 +34,11 @@ data class LandingUIObservable(
                 process == LandingProcess.LOAD_INITIAL_DATA
 }
 
-class LandingUIModel {
+class LandingUIModel: UIModelInterface {
 
 }
 
-enum class LandingProcess {
+enum class LandingProcess: UIProcessInterface {
     LOAD_INITIAL_DATA
 }
 
