@@ -4,9 +4,8 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,9 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,15 +31,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -54,9 +56,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.extensions.formatCurrency
+import com.dnovaes.stockcontrol.common.models.business.ProductSize.Companion.UNIQUE_SIZE
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
 import com.dnovaes.stockcontrol.common.ui.components.StockButton
+import com.dnovaes.stockcontrol.common.ui.components.StockDropdownField
 import com.dnovaes.stockcontrol.common.ui.components.StockNegativeButton
 import com.dnovaes.stockcontrol.common.ui.components.StockOutlineTextField
 import com.dnovaes.stockcontrol.common.utils.SessionManager
@@ -175,8 +179,17 @@ fun UpdateFieldsPage(
 
         val categoryName = SessionManager.loadProductCategories().firstOrNull { it.id == product.categoryId }?.name
         StockDropdownField(
-            selectedCategory = categoryName ?: "",
+            label = R.string.add_product_category_field,
+            value = categoryName ?: "",
+            modifier = Modifier
+                .padding(
+                    horizontal = defaultPadding.dp,
+                    vertical = 0.dp,
+                )
+                .fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(),
+            readOnly = true,
+            enabled = false,
             onClick =  null
         )
 
@@ -300,6 +313,56 @@ fun UpdateFieldsPage(
             )
         }
 
+        var expandedDropdown by remember { mutableStateOf(false) }
+        var selectedSize by remember {
+            mutableStateOf(currentState.data.sizes.firstOrNull() ?: UNIQUE_SIZE)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            StockDropdownField(
+                label = R.string.product_size_label,
+                value = selectedSize.code,
+                modifier = Modifier
+                    .padding(
+                        horizontal = defaultPadding.dp,
+                        vertical = 4.dp,
+                    )
+                    .fillMaxWidth(.5f),
+                readOnly = true,
+                enabled = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledTextColor = Color.Black
+                ),
+                onClick = {
+                    expandedDropdown = !expandedDropdown
+                }
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(.5f)
+                    .padding(horizontal = 16.dp, vertical = 0.dp)
+            ) {
+                DropdownMenu(
+                    expanded = expandedDropdown,
+                    onDismissRequest = { },
+                    content = {
+                        currentState.data.sizes.forEachIndexed { _, size ->
+                            DropdownMenuItem(
+                                text = { Text(size.code) },
+                                onClick = {
+                                    expandedDropdown = false
+                                    selectedSize = size
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -364,32 +427,5 @@ fun FilledPhotoButton(image: Bitmap) {
         bitmap = image.asImageBitmap(),
         contentDescription = null,
         contentScale = ContentScale.FillBounds
-    )
-}
-
-@Composable
-fun StockDropdownField(
-    selectedCategory: String,
-    colors: TextFieldColors,
-    onClick: (() -> Unit)? = null,
-) {
-    OutlinedTextField(
-        value = selectedCategory,
-        onValueChange = {},
-        label = { Text(stringResource(id = R.string.add_product_category_field)) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusable(false)
-            .padding(horizontal = defaultPadding.dp, vertical = 4.dp)
-            .clickable(onClick = { onClick?.invoke() }),
-        readOnly = true,
-        enabled = false,
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = "",
-            )
-        },
-        colors = colors
     )
 }

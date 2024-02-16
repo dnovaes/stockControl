@@ -12,3 +12,4 @@ val Pink40 = Color(0xFF7D5260)
 
 val AnneBackground = Color(0xFFEFF6E7)
 val AnnePrimary = Color(0xFF006A60)
+val AnnePrimaryDisabled = Color(0xFF006A60)

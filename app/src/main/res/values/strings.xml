@@ -38,5 +38,6 @@
 
     <string name="landing_page_menu_register_products">Cadastrar Produtos</string>
     <string name="landing_page_manage_stock">Gerenciar Estoque</string>
+    <string name="product_size_label">Tamanho</string>
 
 </resources>

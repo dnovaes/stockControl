@@ -12,6 +12,7 @@ data class UpdateUIObservable(
     override val data: UpdateUIModel,
     override val error: UIErrorInterface? = null
 ): UIObservable<UpdateUIModel>(state, process, data, error) {
+
     fun withProcess(process: UpdateProcess) = this.copy(process = process)
 
     fun withError(error: UIErrorInterface?): UpdateUIObservable
