@@ -378,7 +378,7 @@ fun UpdateFieldsPage(
                 val newStockProduct = NewStockProduct(
                     price = priceSellNameState.value.text,
                     quantity = stockQuantityState.intValue,
-                    size = "1",
+                    size = selectedSize.id,
                     productId = product.id,
                     storeId = SessionManager.storeId
                 )
