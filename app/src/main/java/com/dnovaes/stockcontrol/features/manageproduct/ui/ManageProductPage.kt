@@ -14,12 +14,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -30,20 +32,58 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dnovaes.stockcontrol.R
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.ui.components.LoadingOverlay
+import com.dnovaes.stockcontrol.common.ui.components.QRCodeReaderScreen
 import com.dnovaes.stockcontrol.common.ui.components.StockOutlineTextField
 import com.dnovaes.stockcontrol.features.manageproduct.viewmodel.ManageViewModel
 import com.dnovaes.stockcontrol.ui.theme.AnnePrimary
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageProductPage(
     viewModel: ManageViewModel = hiltViewModel(),
     onBackPressed: () -> Unit,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
+    val rememberScope = rememberCoroutineScope()
 
+    val currentState = viewModel.state.value
+    when  {
+        currentState.isRequestingCamera() -> {
+            QRCodeReaderScreen(
+                onFinishCapture = {
+                    viewModel.finishCapturing()
+                }
+            )
+        }
+        else -> {
+            currentState.error?.let {
+                val errorMessage = stringResource(id = currentState.error.errorCode.resId)
+                rememberScope.launch {
+                    snackBarHostState.showSnackbar(
+                        message = errorMessage,
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+                viewModel.snackBarShown()
+            }
+            ManageProductScaffoldPage(
+                snackBarHostState,
+                viewModel,
+                onBackPressed
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageProductScaffoldPage(
+    snackBarHostState: SnackbarHostState,
+    viewModel: ManageViewModel,
+    onBackPressed: () -> Unit
+) {
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -83,8 +123,9 @@ fun ManageProductPage(
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 0.dp)
                             .clickable {
-                            log("barcode clicked")
-                        }
+                                log("barcode clicked")
+                                viewModel.requestCamera()
+                            }
                     )
                 }
             )
@@ -94,7 +135,10 @@ fun ManageProductPage(
         LaunchedEffect(key1 = true) {
             viewModel.loadInitialData()
         }
-        ManageSearchPage(paddingValues, viewModel)
+        ManageSearchPage(
+            paddingValues,
+            viewModel,
+        )
     }
 }
 
@@ -121,7 +165,6 @@ fun ManageSearchPage(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-
         StockOutlineTextField(
             labelText = "Procurar Produto",
             currentValue = "",
@@ -130,6 +173,5 @@ fun ManageSearchPage(
                 viewModel.searchProductByName(it)
             },
         )
-
     }
 }

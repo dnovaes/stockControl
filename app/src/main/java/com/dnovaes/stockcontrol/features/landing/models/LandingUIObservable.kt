@@ -32,6 +32,10 @@ data class LandingUIObservable(
     fun isLoadingInitialData() =
         state == State.PROCESSING &&
                 process == LandingProcess.LOAD_INITIAL_DATA
+
+    fun asIdle(): LandingUIObservable {
+        return copy(state = State.IDLE, process = LandingProcess.LOAD_INITIAL_DATA)
+    }
 }
 
 class LandingUIModel: UIModelInterface {

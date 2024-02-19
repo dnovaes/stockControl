@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.exception.ApolloNetworkException
 import com.dnovaes.stockcontrol.GetAllCategoriesQuery
 import com.dnovaes.stockcontrol.common.models.ErrorCode
 import com.dnovaes.stockcontrol.common.models.ErrorCodeInterface
@@ -26,7 +25,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import java.net.ConnectException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -121,6 +119,7 @@ class LandingViewModel @Inject constructor(
 
     fun snackBarShown() {
         _uiState = _uiState
+            .asIdle()
             .withError(null)
         state.value = _uiState
     }

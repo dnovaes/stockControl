@@ -63,7 +63,9 @@ fun LandingPage(
                         viewModel.snackBarShown()
                     }
                 }
-                LandingMenuPage(navHostController)
+                LandingMenuPage(navHostController) {
+                    navHostController.navigate("ManageProductPage")
+                }
             }
         }
     }
@@ -71,7 +73,8 @@ fun LandingPage(
 
 @Composable
 fun LandingMenuPage(
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    onClickManageButton: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -99,7 +102,7 @@ fun LandingMenuPage(
             StockButton(
                 stringResource(R.string.landing_page_manage_stock),
             ) {
-                //onClickManage()
+                onClickManageButton()
             }
         }
     }

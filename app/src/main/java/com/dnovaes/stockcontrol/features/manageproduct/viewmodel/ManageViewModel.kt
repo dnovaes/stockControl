@@ -5,23 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.dnovaes.stockcontrol.common.models.ErrorCode
-import com.dnovaes.stockcontrol.common.models.ErrorCodeInterface
 import com.dnovaes.stockcontrol.common.models.State
-import com.dnovaes.stockcontrol.common.models.UIErrorInterface
-import com.dnovaes.stockcontrol.common.models.business.StockProduct
-import com.dnovaes.stockcontrol.common.monitoring.log
-import com.dnovaes.stockcontrol.common.utils.SessionManager
 import com.dnovaes.stockcontrol.features.manageproduct.models.ManageProcess
 import com.dnovaes.stockcontrol.features.manageproduct.models.ManageUIModel
 import com.dnovaes.stockcontrol.features.manageproduct.models.ManageUIObservable
-import com.dnovaes.stockcontrol.type.NewStockProduct
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,5 +47,22 @@ class ManageViewModel @Inject constructor(
             _state = _state.asDoneLoadInitialData()
             state.value = _state
         }
+    }
+
+    fun requestCamera() {
+        _state = _state.asRequestingCamera()
+        state.value = _state
+    }
+
+    fun finishCapturing() {
+        _state = _state.asDoneRequestCamera()
+        state.value = _state
+    }
+
+    fun snackBarShown() {
+        _state = _state
+            .asIdle()
+            .withError(null)
+        state.value = _state
     }
 }

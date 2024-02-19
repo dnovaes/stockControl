@@ -20,6 +20,9 @@ data class ManageUIObservable(
 
     override fun withData(model: ManageUIModel) = this.copy(data = model)
 
+    fun asIdle()
+        = copy(state = State.IDLE, process = ManageProcess.LOAD_INITIAL_DATA)
+
     fun asLoadingInitialData(): ManageUIObservable
         = copy(state = State.PROCESSING, process = ManageProcess.LOAD_INITIAL_DATA)
 
@@ -32,9 +35,20 @@ data class ManageUIObservable(
     fun isDoneLoadInitialData() =
         state == State.DONE && process == ManageProcess.LOAD_INITIAL_DATA
 
+    fun asRequestingCamera() = copy(
+        state = State.PROCESSING,
+        process = ManageProcess.REQUEST_CAMERA
+    )
+
+    fun isRequestingCamera() =
+        state == State.PROCESSING &&
+                process == ManageProcess.REQUEST_CAMERA
+
+    fun asDoneRequestCamera()
+        = copy(state = State.DONE, process = ManageProcess.REQUEST_CAMERA)
 }
 
 enum class ManageProcess: UIProcessInterface {
-    LOAD_INITIAL_DATA
+    LOAD_INITIAL_DATA,
+    REQUEST_CAMERA
 }
-
