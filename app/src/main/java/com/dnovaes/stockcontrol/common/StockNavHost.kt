@@ -13,6 +13,7 @@ import com.dnovaes.stockcontrol.common.ui.genericscreens.FullScreenAlert
 import com.dnovaes.stockcontrol.common.ui.genericscreens.printer.PrintPreviewPage
 import com.dnovaes.stockcontrol.common.ui.genericscreens.printer.PrintPreviewVIewModel
 import com.dnovaes.stockcontrol.features.addproduct.ui.AddProductPage
+import com.dnovaes.stockcontrol.features.manageproduct.ui.ManageProductPage
 import com.dnovaes.stockcontrol.features.updateproduct.ui.UpdateProductPage
 import com.dnovaes.stockcontrol.ui.pages.LandingPage
 import com.dnovaes.stockcontrol.utilities.StockBluetoothManager
@@ -61,11 +62,12 @@ fun StockNavHost(
                 }
             )
         }
-/*
-                    composable(route = "ManageProductPage") {
-                        LandingPage()
-                    }
-        */
+
+        composable(route = "ManageProductPage") {
+            ManageProductPage {
+               navHostController.popBackStack()
+            }
+        }
 
         composable(route = "UpdateProductPage/{productId}") {backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: "-1"
