@@ -79,6 +79,7 @@ class UpdateViewModel @Inject constructor(
                 val newStockProduct = StockProduct(
                     productId = product.id,
                     productName = product.name,
+                    productImage = product.image,
                     storeId = store.id,
                     styleColor = styleColor,
                     size = size,

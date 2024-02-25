@@ -1,5 +1,5 @@
-mutation AddStockProduct($stockProduct: NewStockProduct!) {
-  createStockProduct(input: $stockProduct) {
+query GetAllStockProduct {
+  getAllStockProduct {
     product {
       id
       name
