@@ -13,6 +13,9 @@ import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.common.models.UIErrorInterface
 import com.dnovaes.stockcontrol.common.models.business.ProductCategory
 import com.dnovaes.stockcontrol.common.monitoring.log
+import com.dnovaes.stockcontrol.common.monitoring.logFailedRequest
+import com.dnovaes.stockcontrol.common.monitoring.logSentRequest
+import com.dnovaes.stockcontrol.common.monitoring.logSuccessRequest
 import com.dnovaes.stockcontrol.common.utils.SessionManager
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIError
 import com.dnovaes.stockcontrol.features.landing.models.LandingProcess
@@ -54,10 +57,11 @@ class LandingViewModel @Inject constructor(
 
             val logTag = "GetAllCategories"
             try {
+                logSentRequest(tag = logTag, message = "process: ${_uiState.process}, state: ${_uiState.state}")
                 val flow = apolloClient.query(GetAllCategoriesQuery()).toFlow()
                 withTimeout(8000) {
                     flow.catch {
-                        log("$logTag) localizedMessage: ${it.localizedMessage}, cause: ${it.cause}")
+                        logFailedRequest(tag = logTag, message = "localizedMessage: ${it.localizedMessage}, cause: ${it.cause}")
                         val error = object : UIErrorInterface {
                             override val errorCode: ErrorCodeInterface = ErrorCode.CONNECTION_EXCEPTION
                             override val additionalParams: Map<String, String> = emptyMap()
@@ -97,7 +101,7 @@ class LandingViewModel @Inject constructor(
         response: ApolloResponse<GetAllCategoriesQuery.Data>
     ) {
         response.data?.let {
-            log("$logTag) success response: ${it.getAllCategories}")
+            logSuccessRequest(logTag, "${it.getAllCategories}")
             val products = it.getAllCategories.map {
                     product -> ProductCategory(product.id, product.name)
             }
