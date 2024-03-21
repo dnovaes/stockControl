@@ -14,6 +14,7 @@ import com.dnovaes.stockcontrol.common.models.State
 import com.dnovaes.stockcontrol.common.models.business.Product
 import com.dnovaes.stockcontrol.common.monitoring.log
 import com.dnovaes.stockcontrol.common.utils.SessionManager
+import com.dnovaes.stockcontrol.common.utils.rotateBitmap
 import com.dnovaes.stockcontrol.features.addproduct.models.AddProcess
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIError
 import com.dnovaes.stockcontrol.features.addproduct.models.AddUIModel
@@ -49,11 +50,15 @@ class AddViewModel @Inject constructor(
     }
 
     fun finishImageCapturing(image: Bitmap?) {
-        val model = _addState.data
-        val newModel = model.copy(registerImage = image)
-
-        _addState = _addState.copy(data = newModel)
-        addState.value = _addState
+        viewModelScope.launch(Dispatchers.Default) {
+            image?.let {
+                val rotatedImage = rotateBitmap(image, 90f)
+                val model = _addState.data
+                val newModel = model.copy(registerImage = rotatedImage)
+                _addState = _addState.copy(data = newModel)
+            }
+            addState.value = _addState
+        }
     }
 
     fun registerProduct(product: NewProduct) {
